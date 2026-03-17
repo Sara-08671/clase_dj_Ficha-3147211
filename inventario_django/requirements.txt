@@ -1,0 +1,16 @@
+
+# Framework principal (Compatible con MariaDB 10.4 de XAMPP)
+Django>=5.0,<5.1
+
+
+# Conector de base de datos
+mysqlclient>=2.2.4
+
+
+# Generación de PDFs
+reportlab>=4.0.0
+weasyprint>=61.0
+
+
+# Manejo de variables de entorno (Seguridad)
+python-dotenv>=1.0.0
