@@ -1,0 +1,92 @@
+/* 
+ * LIGHT PINK THEME — Simple & Clean
+ * Primary: #FFB6C1 (255, 182, 193)
+ */
+
+:root {
+  --pink-light: #FFB6C1;
+  --pink-soft: #FFD1DC;
+  --pink-deep: #FF9AA2;
+  --pink-accent: #FF80A2;
+}
+
+/* Navbar */
+.navbar-main {
+  background: #ffffff !important;
+  border-bottom: 2px solid var(--pink-light) !important;
+  box-shadow: 0 4px 20px rgba(255, 182, 193, 0.15) !important;
+  padding: 1rem 2rem !important;
+}
+
+.navbar-brand {
+  color: var(--pink-accent) !important;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.nav-link {
+  color: var(--pink-deep) !important;
+  font-weight: 600;
+  padding: 0.5rem 1rem !important;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  margin: 0 0.25rem;
+}
+
+.nav-link:hover {
+  color: var(--pink-accent) !important;
+  background: rgba(255, 182, 193, 0.15);
+  transform: translateY(-1px);
+}
+
+.nav-link.active {
+  color: var(--pink-accent) !important;
+  background: rgba(255, 182, 193, 0.2);
+}
+
+.user-badge {
+  background: linear-gradient(135deg, rgba(255, 182, 193, 0.2), rgba(255, 182, 193, 0.3)) !important;
+  border: 1.5px solid rgba(255, 182, 193, 0.3) !important;
+  color: var(--pink-accent) !important;
+  padding: 0.5rem 1.2rem !important;
+  border-radius: 50px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.user-avatar {
+  background: linear-gradient(135deg, var(--pink-light), var(--pink-accent)) !important;
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.4);
+}
+
+.btn-logout-nav {
+  background: transparent !important;
+  border: 1.5px solid rgba(255, 100, 100, 0.3) !important;
+  color: #ff8888 !important;
+  border-radius: 50px;
+  padding: 0.5rem 1.2rem !important;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-logout-nav:hover {
+  background: rgba(255, 100, 100, 0.08) !important;
+  border-color: rgba(255, 100, 100, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+.not-authenticated {
+  color: var(--pink-deep) !important;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.navbar-toggler {
+  border-color: rgba(255, 182, 193, 0.4) !important;
+}
+
+/* HTMX Indicator */
+.htmx-indicator {
+  border-color: var(--pink-light) !important;
+  border-top-color: transparent !important;
+}

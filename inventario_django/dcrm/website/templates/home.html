@@ -1,5 +1,406 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<h1>Bienvenido ☕</h1>
-<p>Que disfrutes</p>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #FFB6C1 0%, #FFD1DC 50%, #FFB6C1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  .main-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    box-sizing: border-box;
+  }
+
+  .login-card, .welcome-card {
+    width: 100%;
+    max-width: 420px;
+    background: #1a1a2e;
+    border: 2px solid #FFB6C1;
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    margin: 0 auto;
+    animation: fadein 0.5s ease;
+  }
+
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .rocket { font-size: 48px; text-align: center; margin-bottom: 0.5rem; display: block; }
+  .login-card h2 {
+    text-align: center;
+    font-size: 26px;
+    font-weight: 700;
+    color: #FFD1DC;
+    margin-bottom: 0.5rem;
+  }
+  .login-sub, .welcome-role {
+    text-align: center;
+    font-size: 12px;
+    color: #FFB6C1;
+    margin-bottom: 2rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .field { margin-bottom: 1.2rem; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #FFD1DC;
+    margin-bottom: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .input-wrap { position: relative; }
+
+  .input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: #FFB6C1;
+  }
+
+  .field input {
+    width: 100%;
+    height: 52px;
+    border: 2px solid #FFB6C1;
+    border-radius: 14px;
+    padding: 0 16px 0 52px;
+    font-size: 15px;
+    color: #FFD1DC;
+    background: rgba(255, 255, 255, 0.05);
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .field input::placeholder {
+    color: #FF9AA2;
+    opacity: 0.7;
+  }
+
+  .field input:focus {
+    border-color: #FFD1DC;
+    box-shadow: 0 0 0 4px rgba(255, 182, 193, 0.3);
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Toggle para Login/Registro */
+  .auth-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: rgba(255, 182, 193, 0.1);
+    padding: 0.3rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 182, 193, 0.2);
+  }
+
+  .toggle-btn {
+    flex: 1;
+    padding: 0.7rem;
+    border: none;
+    background: transparent;
+    color: #FF9AA2;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .toggle-btn.active {
+    background: linear-gradient(135deg, #FFB6C1, #FF80A2);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(255, 128, 139, 0.3);
+  }
+
+  .toggle-btn:hover:not(.active) {
+    background: rgba(255, 182, 193, 0.15);
+  }
+
+  /* Campo email oculto por defecto */
+  #emailField {
+    display: none;
+  }
+
+  .btn-login {
+    width: 100%;
+    height: 52px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #FFB6C1, #FF80A2);
+    color: #1a1a2e;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    box-shadow: 0 6px 20px rgba(255, 128, 139, 0.35);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255, 128, 139, 0.5);
+  }
+
+  .btn-login:active {
+    transform: translateY(0);
+  }
+
+  .welcome-card {
+    text-align: center;
+  }
+  .welcome-card .avatar-wrap {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem;
+  }
+  .avatar-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FFB6C1, #FF80A2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    box-shadow: 0 12px 32px rgba(255, 182, 193, 0.4);
+  }
+  .welcome-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: #FFD1DC;
+    margin-bottom: 0.3rem;
+  }
+  .welcome-role {
+    font-size: 12px;
+    color: #FFB6C1;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    font-weight: 600;
+  }
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #FFB6C1;
+    margin-right: 8px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.9); }
+  }
+
+  .welcome-info {
+    background: rgba(255, 182, 193, 0.1);
+    border: 1.5px solid rgba(255, 182, 193, 0.2);
+    border-radius: 18px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+  .welcome-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 182, 193, 0.15);
+  }
+  .welcome-info-row:last-child {
+    border-bottom: none;
+  }
+  .info-label {
+    font-size: 12px;
+    color: #FFB6C1;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .info-value {
+    font-size: 14px;
+    color: #FFD1DC;
+    font-weight: 700;
+  }
+  .welcome-msg {
+    font-size: 14px;
+    color: #FFB6C1;
+    line-height: 1.7;
+    margin-bottom: 1.8rem;
+  }
+
+  .btn-logout {
+    width: 100%;
+    height: 46px;
+    border-radius: 14px;
+    border: 2px solid rgba(255, 100, 100, 0.3);
+    background: transparent;
+    color: #ff8888;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.06em;
+  }
+  .btn-logout:hover {
+    background: rgba(255, 100, 100, 0.08);
+    border-color: rgba(255, 100, 100, 0.5);
+  }
+
+  .login-footer {
+    text-align: center;
+    font-size: 12px;
+    color: #FFB6C1;
+    margin-top: 1.5rem;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+
+  .space-alert {
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    font-size: 13px;
+    margin-bottom: 1rem;
+    text-align: center;
+    border: 1.5px solid rgba(255, 100, 100, 0.3);
+    background: rgba(255, 80, 80, 0.08);
+    color: #ff9999;
+    letter-spacing: 0.04em;
+  }
+
+  .space-alert-success {
+    background: rgba(68, 255, 136, 0.08);
+    border: 1.5px solid rgba(68, 255, 136, 0.25);
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    font-size: 13px;
+    color: #88ffbb;
+    text-align: center;
+    margin-bottom: 1.2rem;
+    letter-spacing: 0.04em;
+  }
+</style>
+
+<br>
+<br>
+<br>
+<div class="main-wrapper">
+  {% if user.is_authenticated %}
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="space-alert-success">✓ {{ message }}</div>
+    {% endfor %}
+  {% else %}
+    <div class="welcome-card" style="text-align: center;">
+      <p class="welcome-name">👋 ¡Bienvenido, {{ user.username }}!</p>
+      <p class="welcome-role"><span class="status-dot"></span>Usuario activo</p>
+    </div>
+  {% endif %}
+
+  {% else %}
+
+  <div class="login-card">
+    <span class="rocket">🚀</span>
+    <h2>Bienvenido</h2>
+    <p class="login-sub">Accede al sistema</p>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="space-alert">⚠ {{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Toggle Login/Registro -->
+    <div class="auth-toggle">
+      <button type="button" class="toggle-btn active" id="btnLogin" onclick="showLogin()">Iniciar Sesión</button>
+      <button type="button" class="toggle-btn" id="btnRegister" onclick="showRegister()">Crear Cuenta</button>
+    </div>
+
+    <form method="POST" action="{% url 'home' %}" autocomplete="off" id="loginForm">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="login" id="formAction">
+
+      <div class="field">
+        <label>Usuario</label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text" name="username" placeholder="Nombre de usuario" required autocomplete="username">
+        </div>
+      </div>
+
+      <div class="field" id="emailField">
+        <label>Correo electrónico</label>
+        <div class="input-wrap">
+          <span class="input-icon">📧</span>
+          <input type="email" name="email" placeholder="tu@email.com" autocomplete="email">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Contraseña</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔑</span>
+          <input type="password" name="password" placeholder="••••••••••" required autocomplete="current-password">
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login" id="submitBtn">
+        ✓ Iniciar sesión
+      </button>
+    </form>
+
+    <p class="login-footer">Sistema seguro · Acceso restringido</p>
+  </div>
+
+  {% endif %}
+</div>
+
+<script>
+  function showLogin() {
+    document.getElementById('formAction').value = 'login';
+    document.getElementById('submitBtn').innerHTML = '✓ Iniciar sesión';
+    document.getElementById('emailField').style.display = 'none';
+    document.getElementById('emailField').querySelector('input').required = false;
+    document.getElementById('btnLogin').classList.add('active');
+    document.getElementById('btnRegister').classList.remove('active');
+  }
+
+  function showRegister() {
+    document.getElementById('formAction').value = 'register';
+    document.getElementById('submitBtn').innerHTML = '✓ Crear cuenta';
+    document.getElementById('emailField').style.display = 'block';
+    document.getElementById('emailField').querySelector('input').required = true;
+    document.getElementById('btnLogin').classList.remove('active');
+    document.getElementById('btnRegister').classList.add('active');
+  }
+</script>
+
 {% endblock %}
