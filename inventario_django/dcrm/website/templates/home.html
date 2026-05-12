@@ -139,8 +139,8 @@
     background: rgba(255, 182, 193, 0.15);
   }
 
-  /* Campo email oculto por defecto */
-  #emailField {
+  /* Campo username oculto por defecto en login */
+  #usernameField {
     display: none;
   }
 
@@ -318,11 +318,6 @@
     {% for message in messages %}
       <div class="space-alert-success">✓ {{ message }}</div>
     {% endfor %}
-  {% else %}
-    <div class="welcome-card" style="text-align: center;">
-      <p class="welcome-name">👋 ¡Bienvenido, {{ user.username }}!</p>
-      <p class="welcome-role"><span class="status-dot"></span>Usuario activo</p>
-    </div>
   {% endif %}
 
   {% else %}
@@ -348,19 +343,19 @@
       {% csrf_token %}
       <input type="hidden" name="action" value="login" id="formAction">
 
-      <div class="field">
+      <div class="field" id="usernameField">
         <label>Usuario</label>
         <div class="input-wrap">
           <span class="input-icon">👤</span>
-          <input type="text" name="username" placeholder="Nombre de usuario" required autocomplete="username">
+          <input type="text" name="username" placeholder="Nombre de usuario" autocomplete="username">
         </div>
       </div>
 
-      <div class="field" id="emailField">
+      <div class="field" id="emailField" style="display: block;">
         <label>Correo electrónico</label>
         <div class="input-wrap">
           <span class="input-icon">📧</span>
-          <input type="email" name="email" placeholder="tu@email.com" autocomplete="email">
+          <input type="email" name="email" placeholder="tu@email.com" required autocomplete="email">
         </div>
       </div>
 
@@ -387,8 +382,8 @@
   function showLogin() {
     document.getElementById('formAction').value = 'login';
     document.getElementById('submitBtn').innerHTML = '✓ Iniciar sesión';
-    document.getElementById('emailField').style.display = 'none';
-    document.getElementById('emailField').querySelector('input').required = false;
+    document.getElementById('usernameField').style.display = 'none';
+    document.getElementById('usernameField').querySelector('input').required = false;
     document.getElementById('btnLogin').classList.add('active');
     document.getElementById('btnRegister').classList.remove('active');
   }
@@ -396,8 +391,8 @@
   function showRegister() {
     document.getElementById('formAction').value = 'register';
     document.getElementById('submitBtn').innerHTML = '✓ Crear cuenta';
-    document.getElementById('emailField').style.display = 'block';
-    document.getElementById('emailField').querySelector('input').required = true;
+    document.getElementById('usernameField').style.display = 'block';
+    document.getElementById('usernameField').querySelector('input').required = true;
     document.getElementById('btnLogin').classList.remove('active');
     document.getElementById('btnRegister').classList.add('active');
   }

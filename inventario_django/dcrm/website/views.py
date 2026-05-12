@@ -11,24 +11,31 @@ from django.contrib.auth.decorators import login_required
 # Esta función define la vista principal (home) del sitio.
 def home(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        email = request.POST.get('email')
         password = request.POST.get('password')
         action = request.POST.get('action', 'login')
         
         if action == 'register':
-            email = request.POST.get('email', '')
-            if User.objects.filter(username=username).exists():
+            username = request.POST.get('username', '').strip()
+            if username and User.objects.filter(username=username).exists():
                 messages.error(request, "El comandante ya existe en el sistema")
                 return redirect('home')
-            else:
+            elif username and email:
                 user = User.objects.create_user(username=username, password=password, email=email)
                 messages.success(request, "¡Cuenta creada! Ahora debes iniciar sesión")
                 return redirect('home')
+            else:
+                messages.error(request, "Usuario y correo son obligatorios")
+                return redirect('home')
         else:
-            user = authenticate(request, username=username, password=password)
+            try:
+                user = User.objects.get(email=email)
+                user = authenticate(request, username=user.username, password=password)
+            except User.DoesNotExist:
+                user = None
             if user is not None:
                 login(request, user)
-                messages.success(request, f"¡Bienvenido de vuelta, {username}!")
+                messages.success(request, f"¡Hola {user.username}! Que tengas un día increíble")
                 return redirect('home')
             else:
                 messages.error(request, "Credenciales incorrectas")
@@ -40,12 +47,16 @@ def home(request):
 
 def login_user(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        email = request.POST.get('email')
         password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
+        try:
+            user_obj = User.objects.get(email=email)
+            user = authenticate(request, username=user_obj.username, password=password)
+        except User.DoesNotExist:
+            user = None
         if user is not None:
             login(request, user)
-            messages.success(request, f"¡Bienvenido, {username}!")
+            messages.success(request, f"¡Hola {user.username}! Que tengas un día increíble")
             return redirect('home')
         else:
             messages.error(request, "Credenciales inválidas")
