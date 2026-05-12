@@ -1,11 +1,17 @@
+{# Navbar que se muestra solo cuando el usuario está autenticado #}
 {% if user.is_authenticated %}
-<nav style="background: #4a90d9; padding: 10px 20px; color: white;">
-  <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
-    <a href="{% url 'home' %}" style="color: white; text-decoration: none; font-weight: bold;">Menu</a>
+<nav style="background: #FFB6C1; padding: 12px 20px; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+  <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; font-weight: 500;">
+    {# Enlace al menú principal #}
+    <a href="{% url 'home' %}" style="color: #333; text-decoration: none; font-weight: 600;">Menu</a>
+    
+    {# Muestra el nombre de usuario #}
     <span>Usuario: {{ user.username }}</span>
+    
+    {# Formulario para cerrar sesión #}
     <form method="POST" action="{% url 'logout' %}" style="display: inline;">
       {% csrf_token %}
-      <button type="submit" style="background: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;">Cerrar sesión</button>
+      <button type="submit" style="background: #FF6B6B; color: white; border: none; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-weight: 500;">Cerrar sesión</button>
     </form>
   </div>
 </nav>
