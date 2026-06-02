@@ -26,7 +26,15 @@ SECRET_KEY = 'django-insecure-mb$us4c%5n&r5mwfu_030&r*6v&i6f0#&p=th6#$s#_0sycn9u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '.local.lt',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://*.local.lt',
+]
 
 
 # Application definition
@@ -83,7 +91,9 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': 'localhost',
         'PORT': '3306',
-        
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # Esto quita el Warning del Strict Mode
+        },
     }
 }
 
@@ -91,28 +101,15 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+AUTH_PASSWORD_VALIDATORS = []
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
@@ -132,3 +129,22 @@ STATICFILES_DIRS =[
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# 1. Saltarse la validación de versión de MariaDB
+from django.db.backends.base.base import BaseDatabaseWrapper
+BaseDatabaseWrapper.check_database_version_supported = lambda self: None
+
+# 2. Parche completo para desactivar 'RETURNING' en MariaDB 10.4
+from django.db.backends.mysql.compiler import SQLInsertCompiler
+from django.db.backends.mysql.features import DatabaseFeatures
+
+DatabaseFeatures.can_return_rows_from_insert = property(lambda self: False)
+DatabaseFeatures.can_return_columns_from_insert = property(lambda self: False)
+
+# Forzar al compilador a ignorar los campos de retorno
+original_as_sql = SQLInsertCompiler.as_sql
+def patched_as_sql(self):
+    self.returning_fields = None
+    return original_as_sql(self)
+SQLInsertCompiler.as_sql = patched_as_sql

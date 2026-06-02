@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  body {
+    background: #FFB6C1;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+  }
+
+  .register-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 16px;
+  }
+
+  .register-panel {
+    background: #fff;
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .register-title {
+    color: #d94d73;
+    font-weight: 700;
+  }
+
+  .btn-pink {
+    background: #FF80A2;
+    border-color: #FF80A2;
+    color: #fff;
+  }
+
+  .btn-pink:hover {
+    background: #ef6f92;
+    border-color: #ef6f92;
+    color: #fff;
+  }
+</style>
+
+<div class="register-wrap">
+  <div class="register-panel">
+    <h1 class="register-title h3 text-center mb-4">Crear cuenta</h1>
+
+    <form method="POST" action="{% url 'register' %}">
+      {% csrf_token %}
+
+      {% if form.errors %}
+        <div class="alert alert-danger">
+          Revise los datos ingresados e intente nuevamente.
+        </div>
+      {% endif %}
+
+      <div class="row g-3">
+        {% for field in form %}
+          <div class="col-md-6">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+              <div class="form-text">{{ field.help_text|safe }}</div>
+            {% endif %}
+            {% for error in field.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="btn btn-pink w-100 mt-4">Registrar</button>
+    </form>
+
+    <div class="text-center mt-3">
+      <span class="text-muted">Ya tienes cuenta?</span>
+      <a href="{% url 'home' %}" class="fw-semibold">Iniciar sesion</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

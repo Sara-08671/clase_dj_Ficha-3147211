@@ -3,16 +3,22 @@ from django.contrib.auth.models import User
 
 # Modelo Registro: almacena información adicional de los usuarios
 # Relacionado uno a uno con el modelo User de Django
-class Registro(models.Model):
-    # Referencia al usuario de Django (eliminación en cascada)
+class Record(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # Campos opcionales para información de contacto
-    telefono = models.CharField(max_length=20, blank=True)
-    direccion = models.CharField(max_length=255, blank=True)
-    ciudad = models.CharField(max_length=100, blank=True)
-    
-    def __str__(self):
-        return f"Registro de {self.user.username}"
+    created_at=models.DateTimeField(auto_now_add=True)
+    first_name = models.CharField(max_length=58)
+    last_name = models.CharField(max_length=50)
+    email = models.EmailField(max_length=50)
+    phone = models.CharField(max_length=20)
+    Address = models.CharField(max_length=100)
+    city = models.CharField(max_length=50)
+    state = models.CharField(max_length=50)
+    zipcode = models.CharField(max_length=20)
+
+    #metodo para mostrar el nomnre compelto dek cliente y es tipo de encapsulado privado
+    #se utiliza el metodo __str__ para devolver una representacion en forma de cadena del objeto
+    def __str__(self) -> str:
+        return (f"{self.first_name} {self.last_name}")
 
 # Modelo Categoria: representa las categorías de productos
 class Categoria(models.Model):

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  body {
+    background: #FFB6C1;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+  }
+
+  .record-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 28px 16px;
+  }
+
+  .record-card {
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .record-card h2 {
+    color: #d94d73;
+    margin-bottom: 20px;
+  }
+
+  .record-field {
+    margin-bottom: 15px;
+  }
+
+  .record-label {
+    font-weight: 600;
+    color: #555;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .record-value {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
+    border-left: 4px solid #FFB6C1;
+    display: block;
+  }
+</style>
+
+<div class="record-wrap">
+  <div class="record-card">
+    <h2>Informacion del usuario</h2>
+
+    <div class="record-field">
+      <span class="record-label">ID:</span>
+      <span class="record-value">{{ customer_record.id }}</span>
+    </div>
+
+    <div class="record-field">
+      <span class="record-label">Nombre:</span>
+      <span class="record-value">{{ customer_record.first_name }}</span>
+    </div>
+
+    <div class="record-field">
+      <span class="record-label">Apellido:</span>
+      <span class="record-value">{{ customer_record.last_name }}</span>
+    </div>
+
+    <div class="record-field">
+      <span class="record-label">Email:</span>
+      <span class="record-value">{{ customer_record.email }}</span>
+    </div>
+
+    <div class="record-field">
+      <span class="record-label">Telefono:</span>
+      <span class="record-value">{{ customer_record.phone }}</span>
+    </div>
+
+    <div class="record-field">
+      <span class="record-label">Direccion:</span>
+      <span class="record-value">{{ customer_record.Address }}</span>
+    </div>
+
+    <div class="record-field">
+      <span class="record-label">Ciudad:</span>
+      <span class="record-value">{{ customer_record.city }}</span>
+    </div>
+
+    <div class="record-field">
+      <span class="record-label">Estado:</span>
+      <span class="record-value">{{ customer_record.state }}</span>
+    </div>
+
+    <div class="record-field">
+      <span class="record-label">Codigo postal:</span>
+      <span class="record-value">{{ customer_record.zipcode }}</span>
+    </div>
+
+    <div class="record-field">
+      <span class="record-label">Fecha de creacion:</span>
+      <span class="record-value">{{ customer_record.created_at|date:"d/m/Y H:i" }}</span>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mt-4">
+      <a href="{% url 'home' %}" class="btn btn-secondary">Volver</a>
+      <a href="{% url 'edit_record' customer_record.id %}" class="btn btn-warning">Editar</a>
+      <form method="POST" action="{% url 'delete_record' customer_record.id %}" onsubmit="return confirm('Desea eliminar este usuario?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

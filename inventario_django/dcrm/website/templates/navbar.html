@@ -1,6 +1,6 @@
 {# Navbar que se muestra solo cuando el usuario está autenticado #}
 {% if user.is_authenticated %}
-<nav style="background: #FFB6C1; padding: 12px 20px; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+<nav style="background: #ffd6d6; padding: 12px 20px; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
   <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; font-weight: 500;">
     {# Enlace al menú principal #}
     <a href="{% url 'home' %}" style="color: #333; text-decoration: none; font-weight: 600;">Menu</a>
