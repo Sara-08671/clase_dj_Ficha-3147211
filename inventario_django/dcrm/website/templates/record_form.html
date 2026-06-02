@@ -3,7 +3,7 @@
 {% block content %}
 <style>
   body {
-    background: #FFB6C1;
+    background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
   }
@@ -15,21 +15,46 @@
   }
 
   .form-panel {
-    background: #fff;
-    border-radius: 8px;
-    padding: 28px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   }
 
   .form-title {
     color: #d94d73;
     font-weight: 700;
+    margin-bottom: 25px;
+  }
+
+  .form-control {
+    border-radius: 8px;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    transition: border 0.2s ease;
+  }
+
+  .form-control:focus {
+    border-color: #FF80A2;
+    box-shadow: 0 0 0 0.2rem rgba(255, 128, 162, 0.25);
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 8px;
   }
 
   .btn-pink {
     background: #FF80A2;
     border-color: #FF80A2;
     color: #fff;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
   }
 
   .btn-pink:hover {
@@ -37,11 +62,22 @@
     border-color: #ef6f92;
     color: #fff;
   }
+
+  .btn-outline-pink {
+    background: transparent;
+    border-color: #FF80A2;
+    color: #FF80A2;
+  }
+
+  .btn-outline-pink:hover {
+    background: #FF80A2;
+    color: #fff;
+  }
 </style>
 
 <div class="form-wrap">
   <div class="form-panel">
-    <h1 class="form-title h3 text-center mb-4">{{ title }}</h1>
+    <h1 class="form-title h3 mb-0">{{ title }}</h1>
 
     <form method="POST">
       {% csrf_token %}
@@ -64,7 +100,7 @@
 
       <div class="d-flex gap-2 mt-4">
         <button type="submit" class="btn btn-pink">Guardar</button>
-        <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
+        <a href="{% url 'home' %}" class="btn btn-outline-pink">Cancelar</a>
       </div>
     </form>
   </div>

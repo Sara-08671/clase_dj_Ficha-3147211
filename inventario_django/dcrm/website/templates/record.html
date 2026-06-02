@@ -3,46 +3,98 @@
 {% block content %}
 <style>
   body {
-    background: #FFB6C1;
+    background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
   }
 
   .record-wrap {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 28px 16px;
   }
 
   .record-card {
     background: white;
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   }
 
   .record-card h2 {
     color: #d94d73;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    font-weight: 700;
+  }
+
+  .record-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 
   .record-field {
-    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
   }
 
   .record-label {
     font-weight: 600;
     color: #555;
-    display: block;
-    margin-bottom: 5px;
+    font-size: 14px;
+    margin-bottom: 6px;
   }
 
   .record-value {
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 6px;
-    border-left: 4px solid #FFB6C1;
-    display: block;
+    background: #fff5f8;
+    padding: 14px 16px;
+    border-radius: 8px;
+    border-left: 4px solid #FF80A2;
+    color: #333;
+    font-size: 15px;
+  }
+
+  .action-btns {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+
+  .btn-pink {
+    background: #FF80A2;
+    border-color: #FF80A2;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-pink:hover {
+    background: #ef6f92;
+    border-color: #ef6f92;
+    color: #fff;
+  }
+
+  .btn-warning-pink {
+    background: #FFB6C1;
+    border-color: #FFB6C1;
+    color: #333;
+  }
+
+  .btn-warning-pink:hover {
+    background: #FF99B9;
+    border-color: #FF99B9;
+    color: #333;
   }
 </style>
 
@@ -50,62 +102,64 @@
   <div class="record-card">
     <h2>Informacion del usuario</h2>
 
-    <div class="record-field">
-      <span class="record-label">ID:</span>
-      <span class="record-value">{{ customer_record.id }}</span>
+    <div class="record-grid">
+      <div class="record-field">
+        <span class="record-label">ID:</span>
+        <span class="record-value">{{ customer_record.id }}</span>
+      </div>
+
+      <div class="record-field">
+        <span class="record-label">Nombre:</span>
+        <span class="record-value">{{ customer_record.first_name }}</span>
+      </div>
+
+      <div class="record-field">
+        <span class="record-label">Apellido:</span>
+        <span class="record-value">{{ customer_record.last_name }}</span>
+      </div>
+
+      <div class="record-field">
+        <span class="record-label">Email:</span>
+        <span class="record-value">{{ customer_record.email }}</span>
+      </div>
+
+      <div class="record-field">
+        <span class="record-label">Telefono:</span>
+        <span class="record-value">{{ customer_record.phone }}</span>
+      </div>
+
+      <div class="record-field">
+        <span class="record-label">Direccion:</span>
+        <span class="record-value">{{ customer_record.Address }}</span>
+      </div>
+
+      <div class="record-field">
+        <span class="record-label">Ciudad:</span>
+        <span class="record-value">{{ customer_record.city }}</span>
+      </div>
+
+      <div class="record-field">
+        <span class="record-label">Estado:</span>
+        <span class="record-value">{{ customer_record.state }}</span>
+      </div>
+
+      <div class="record-field">
+        <span class="record-label">Codigo postal:</span>
+        <span class="record-value">{{ customer_record.zipcode }}</span>
+      </div>
+
+      <div class="record-field">
+        <span class="record-label">Fecha de creacion:</span>
+        <span class="record-value">{{ customer_record.created_at|date:"d/m/Y H:i" }}</span>
+      </div>
     </div>
 
-    <div class="record-field">
-      <span class="record-label">Nombre:</span>
-      <span class="record-value">{{ customer_record.first_name }}</span>
-    </div>
-
-    <div class="record-field">
-      <span class="record-label">Apellido:</span>
-      <span class="record-value">{{ customer_record.last_name }}</span>
-    </div>
-
-    <div class="record-field">
-      <span class="record-label">Email:</span>
-      <span class="record-value">{{ customer_record.email }}</span>
-    </div>
-
-    <div class="record-field">
-      <span class="record-label">Telefono:</span>
-      <span class="record-value">{{ customer_record.phone }}</span>
-    </div>
-
-    <div class="record-field">
-      <span class="record-label">Direccion:</span>
-      <span class="record-value">{{ customer_record.Address }}</span>
-    </div>
-
-    <div class="record-field">
-      <span class="record-label">Ciudad:</span>
-      <span class="record-value">{{ customer_record.city }}</span>
-    </div>
-
-    <div class="record-field">
-      <span class="record-label">Estado:</span>
-      <span class="record-value">{{ customer_record.state }}</span>
-    </div>
-
-    <div class="record-field">
-      <span class="record-label">Codigo postal:</span>
-      <span class="record-value">{{ customer_record.zipcode }}</span>
-    </div>
-
-    <div class="record-field">
-      <span class="record-label">Fecha de creacion:</span>
-      <span class="record-value">{{ customer_record.created_at|date:"d/m/Y H:i" }}</span>
-    </div>
-
-    <div class="d-flex flex-wrap gap-2 mt-4">
-      <a href="{% url 'home' %}" class="btn btn-secondary">Volver</a>
-      <a href="{% url 'edit_record' customer_record.id %}" class="btn btn-warning">Editar</a>
-      <form method="POST" action="{% url 'delete_record' customer_record.id %}" onsubmit="return confirm('Desea eliminar este usuario?');">
+    <div class="action-btns">
+      <a href="{% url 'home' %}" class="btn btn-pink">Volver</a>
+      <a href="{% url 'edit_record' customer_record.id %}" class="btn btn-pink btn-warning-pink">Editar</a>
+      <form method="POST" action="{% url 'delete_record' customer_record.id %}" onsubmit="return confirm('Desea eliminar este usuario?');" style="display: inline;">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <button type="submit" class="btn btn-pink">Eliminar</button>
       </form>
     </div>
   </div>

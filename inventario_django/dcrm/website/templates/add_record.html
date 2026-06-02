@@ -1,14 +1,107 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="col-md-6 offset-md-3">
-    <h2> Add record </h2>
-<form method="POST" action="{% url 'add_record' %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <br>
-    <button type="submit" class="btn-secondary">Add record</button>
-    <a href="{% url 'home' %}" class="btn-secondary">Back</a>
-</form>
+<style>
+  body {
+    background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+  }
+
+  .form-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 16px;
+  }
+
+  .form-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .form-card h2 {
+    color: #d94d73;
+    font-weight: 700;
+    margin-bottom: 25px;
+  }
+
+  .form-control {
+    border-radius: 8px;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    transition: border 0.2s ease;
+  }
+
+  .form-control:focus {
+    border-color: #FF80A2;
+    box-shadow: 0 0 0 0.2rem rgba(255, 128, 162, 0.25);
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 8px;
+  }
+
+  .btn-pink {
+    background: #FF80A2;
+    border-color: #FF80A2;
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-pink:hover {
+    background: #ef6f92;
+    border-color: #ef6f92;
+    color: #fff;
+  }
+
+  .btn-outline-pink {
+    background: transparent;
+    border-color: #FF80A2;
+    color: #FF80A2;
+  }
+
+  .btn-outline-pink:hover {
+    background: #FF80A2;
+    color: #fff;
+  }
+</style>
+
+<div class="form-wrap">
+  <div class="form-card">
+    <h2>Agregar usuario</h2>
+    <form method="POST" action="{% url 'add_record' %}">
+      {% csrf_token %}
+
+      {% if form.errors %}
+        <div class="alert alert-danger">Revise los datos ingresados.</div>
+      {% endif %}
+
+      <div class="row g-3">
+        {% for field in form %}
+          <div class="col-md-6">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-pink">Guardar</button>
+        <a href="{% url 'home' %}" class="btn btn-outline-pink">Cancelar</a>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

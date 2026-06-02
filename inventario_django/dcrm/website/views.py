@@ -10,7 +10,11 @@ from .models import Record
 
 def home(request):
     if request.user.is_authenticated:
-        records = Record.objects.select_related('user').all().order_by('-created_at')
+        search_id = request.GET.get('search_id')
+        if search_id:
+            records = Record.objects.select_related('user').filter(id=search_id).order_by('-created_at')
+        else:
+            records = Record.objects.select_related('user').all().order_by('-created_at')
         return render(request, 'home.html', {'records': records})
 
     if request.method == 'POST':
@@ -104,18 +108,20 @@ def ventas(request):
 
 @login_required(login_url='home')
 def add_record(request):
+    if not request.user.is_superuser:
+        messages.error(request, 'Solo el administrador puede agregar usuarios.')
+        return redirect('home')
+        
     if request.method == 'POST':
-        form = AddRecordForm(request.POST)
+        form = RegistroForm(request.POST)
         if form.is_valid():
-            record = form.save(commit=False)
-            record.user = request.user
-            record.save()
-            messages.success(request, 'Registro agregado exitosamente.')
+            user = form.save()
+            messages.success(request, 'Usuario agregado exitosamente.')
             return redirect('home')
     else:
-        form = AddRecordForm()
+        form = RegistroForm()
 
-    return render(request, 'record_form.html', {'form': form, 'title': 'Agregar registro'})
+    return render(request, 'add_record.html', {'form': form, 'title': 'Agregar usuario'})
 
 
 @login_required(login_url='home')
@@ -156,19 +162,4 @@ def delete_record(request, pk):
     customer_record.delete()
     user.delete()
     messages.success(request, 'Registro eliminado correctamente.')
-    return redirect('home')
-
-#esta parte para crear la targeta de agregar usuario
-def add_record(request): # esta funcion lo que hace es agregar un nuevo registro a la base de datos 
-    #en esta parte debemos verificar si el usuario esta auntenticado o no, en este caso no permoite agregar usuarios
-    form = RegistroForm(request.POST or None) # esta parte lo que hace es crear un formulario con los datos que se ingresan en el formulario de registro
-    if request.user.is_authenticated: # esta parte lo que hace es verificar si el usuario esta auntenticado o no, en este caso no permoite agregar usuarios
-        if request.method == 'POST': # esta parte lo que hace es verificar si el metodo de la solicitud es POST, en este caso se permite agregar usuarios
-            if form.is_valid(): # esta parte lo que hace es verificar si el formulario es valido o no, en este caso se permite agregar usuarios
-                add_record= form.save() # esta parte lo que hace es guardar el formulario en la base de datos
-                messages.success(request, 'Registro agregado exitosamente.') # esta parte lo que hace es mostrar un mensaje de exito al usuario
-                return redirect('home') # esta parte lo que hace es redirigir al usuario a la pagina de inicio
-            return render (request, 'record_form.html', {'form': form}) # esta parte lo que hace es renderizar la plantilla de agregar registro con el formulario y el titulo
-        else: # si el usuario no esta autentificado no le permite agregar registros
-          messages.success(request," no estas autentidicado entonces no se puede hacer esta accion")
-        return redirect('home') # redirige a la pagina principal  
+    return redirect('home')  
