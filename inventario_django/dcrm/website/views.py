@@ -162,3 +162,13 @@ def delete_record(request, pk):
 def add_record(request): # esta funcion lo que hace es agregar un nuevo registro a la base de datos 
     #en esta parte debemos verificar si el usuario esta auntenticado o no, en este caso no permoite agregar usuarios
     form = RegistroForm(request.POST or None) # esta parte lo que hace es crear un formulario con los datos que se ingresan en el formulario de registro
+    if request.user.is_authenticated: # esta parte lo que hace es verificar si el usuario esta auntenticado o no, en este caso no permoite agregar usuarios
+        if request.method == 'POST': # esta parte lo que hace es verificar si el metodo de la solicitud es POST, en este caso se permite agregar usuarios
+            if form.is_valid(): # esta parte lo que hace es verificar si el formulario es valido o no, en este caso se permite agregar usuarios
+                add_record= form.save() # esta parte lo que hace es guardar el formulario en la base de datos
+                messages.success(request, 'Registro agregado exitosamente.') # esta parte lo que hace es mostrar un mensaje de exito al usuario
+                return redirect('home') # esta parte lo que hace es redirigir al usuario a la pagina de inicio
+            return render (request, 'record_form.html', {'form': form}) # esta parte lo que hace es renderizar la plantilla de agregar registro con el formulario y el titulo
+        else: # si el usuario no esta autentificado no le permite agregar registros
+          messages.success(request," no estas autentidicado entonces no se puede hacer esta accion")
+        return redirect('home') # redirige a la pagina principal  

@@ -78,10 +78,11 @@ class RegistroForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
+        username = user.username
 
         if commit:
             user.save()
-            user = User.objects.get(pk=user.pk)
+            user = User.objects.get(username=username)
             Record.objects.create(
                 user=user,
                 first_name=self.cleaned_data['first_name'],

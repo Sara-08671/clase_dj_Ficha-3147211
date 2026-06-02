@@ -13,4 +13,4 @@ urlpatterns = [
     path('record/<int:pk>/', views.customer_records, name='record'),
     path('record/<int:pk>/edit/', views.edit_record, name='edit_record'),
     path('record/<int:pk>/delete/', views.delete_record, name='delete_record'),
-]
+    path('add_record/', views.add_record, name='add_record')]#Esta es la funcion definida de la vista de agregar registro
