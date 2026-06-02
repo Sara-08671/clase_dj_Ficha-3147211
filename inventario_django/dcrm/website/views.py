@@ -1,9 +1,10 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_GET, require_POST
+from django.core.paginator import Paginator
 from .forms import RegistroForm, AddRecordForm
 from .models import Record
 
@@ -13,9 +14,15 @@ def home(request):
         search_id = request.GET.get('search_id')
         if search_id:
             records = Record.objects.select_related('user').filter(id=search_id).order_by('-created_at')
+            if not records.exists():
+                messages.error(request, 'El registro no existe.')
+                return redirect('home')
         else:
-            records = Record.objects.select_related('user').all().order_by('-created_at')
-        return render(request, 'home.html', {'records': records})
+            records_list = Record.objects.select_related('user').all().order_by('-created_at')
+            paginator = Paginator(records_list, 10)
+            page_number = request.GET.get('page')
+            records = paginator.get_page(page_number)
+        return render(request, 'home.html', {'records': records, 'search_id': search_id})
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -126,13 +133,32 @@ def add_record(request):
 
 @login_required(login_url='home')
 def customer_records(request, pk):
-    customer_record = get_object_or_404(Record, id=pk)
-    return render(request, 'record.html', {'customer_record': customer_record})
+    try:
+        customer_record = Record.objects.get(id=pk)
+    except Record.DoesNotExist:
+        messages.error(request, 'El registro no existe.')
+        return redirect('home')
+    
+    records = Record.objects.all().order_by('id')
+    record_ids = list(records.values_list('id', flat=True))
+    current_index = record_ids.index(pk)
+    prev_record = records.filter(id__lt=pk).last() if current_index > 0 else None
+    next_record = records.filter(id__gt=pk).first() if current_index < len(record_ids) - 1 else None
+    
+    return render(request, 'record.html', {
+        'customer_record': customer_record,
+        'prev_record': prev_record,
+        'next_record': next_record
+    })
 
 
 @login_required(login_url='home')
 def edit_record(request, pk):
-    customer_record = get_object_or_404(Record, id=pk)
+    try:
+        customer_record = Record.objects.get(id=pk)
+    except Record.DoesNotExist:
+        messages.error(request, 'El registro no existe.')
+        return redirect('home')
 
     if request.method == 'POST':
         form = AddRecordForm(request.POST, instance=customer_record)
@@ -157,7 +183,11 @@ def edit_record(request, pk):
 @require_POST
 @login_required(login_url='home')
 def delete_record(request, pk):
-    customer_record = get_object_or_404(Record, id=pk)
+    try:
+        customer_record = Record.objects.get(id=pk)
+    except Record.DoesNotExist:
+        messages.error(request, 'El registro no existe.')
+        return redirect('home')
     user = customer_record.user
     customer_record.delete()
     user.delete()

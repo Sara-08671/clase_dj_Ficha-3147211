@@ -16,9 +16,9 @@
 
   .record-card {
     background: white;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    border-radius: 16px;
+    padding: 35px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
   }
 
   .record-card h2 {
@@ -30,7 +30,7 @@
   .record-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    gap: 24px;
   }
 
   .record-field {
@@ -40,18 +40,22 @@
 
   .record-label {
     font-weight: 600;
-    color: #555;
-    font-size: 14px;
-    margin-bottom: 6px;
+    color: #777;
+    font-size: 13px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .record-value {
-    background: #fff5f8;
-    padding: 14px 16px;
-    border-radius: 8px;
+    background: #fff5fa;
+    padding: 16px 18px;
+    border-radius: 10px;
     border-left: 4px solid #FF80A2;
     color: #333;
     font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
 
   .action-btns {
@@ -60,7 +64,7 @@
     flex-wrap: wrap;
     margin-top: 30px;
     padding-top: 20px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #f0f0f0;
   }
 
   .btn-pink {
@@ -104,52 +108,52 @@
 
     <div class="record-grid">
       <div class="record-field">
-        <span class="record-label">ID:</span>
+        <span class="record-label">ID</span>
         <span class="record-value">{{ customer_record.id }}</span>
       </div>
 
       <div class="record-field">
-        <span class="record-label">Nombre:</span>
+        <span class="record-label">Nombre</span>
         <span class="record-value">{{ customer_record.first_name }}</span>
       </div>
 
       <div class="record-field">
-        <span class="record-label">Apellido:</span>
+        <span class="record-label">Apellido</span>
         <span class="record-value">{{ customer_record.last_name }}</span>
       </div>
 
       <div class="record-field">
-        <span class="record-label">Email:</span>
+        <span class="record-label">Email</span>
         <span class="record-value">{{ customer_record.email }}</span>
       </div>
 
       <div class="record-field">
-        <span class="record-label">Telefono:</span>
+        <span class="record-label">Telefono</span>
         <span class="record-value">{{ customer_record.phone }}</span>
       </div>
 
       <div class="record-field">
-        <span class="record-label">Direccion:</span>
+        <span class="record-label">Direccion</span>
         <span class="record-value">{{ customer_record.Address }}</span>
       </div>
 
       <div class="record-field">
-        <span class="record-label">Ciudad:</span>
+        <span class="record-label">Ciudad</span>
         <span class="record-value">{{ customer_record.city }}</span>
       </div>
 
       <div class="record-field">
-        <span class="record-label">Estado:</span>
+        <span class="record-label">Estado</span>
         <span class="record-value">{{ customer_record.state }}</span>
       </div>
 
       <div class="record-field">
-        <span class="record-label">Codigo postal:</span>
+        <span class="record-label">Codigo postal</span>
         <span class="record-value">{{ customer_record.zipcode }}</span>
       </div>
 
       <div class="record-field">
-        <span class="record-label">Fecha de creacion:</span>
+        <span class="record-label">Fecha de creacion</span>
         <span class="record-value">{{ customer_record.created_at|date:"d/m/Y H:i" }}</span>
       </div>
     </div>

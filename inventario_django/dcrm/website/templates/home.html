@@ -3,7 +3,7 @@
 {% block content %}
 <style>
   body {
-    background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%);
+    background: linear-gradient(135deg, #ffcde6 0%, #ffb6c1 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
   }
@@ -15,10 +15,10 @@
   }
 
   .panel {
-    background: #fff;
-    border-radius: 12px;
-    padding: 28px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    background: #fff9fc;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(255, 128, 162, 0.15);
   }
 
   .panel-title {
@@ -26,49 +26,52 @@
     font-weight: 700;
   }
 
-  .btn-pink {
-    background: #FF80A2;
-    border-color: #FF80A2;
-    color: #fff;
-  }
-
-  .btn-pink:hover {
-    background: #ef6f92;
-    border-color: #ef6f92;
-    color: #fff;
-  }
-
-  .table-actions {
-    min-width: 120px;
+  .user-table {
+    border-collapse: separate;
+    border-spacing: 0 8px;
   }
 
   .user-table th {
     background: #FF80A2 !important;
     color: white !important;
     border: none !important;
+    padding: 12px 15px;
+    font-weight: 600;
   }
 
   .user-table td {
     vertical-align: middle;
+    border: none;
+    padding: 14px 15px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   }
 
   .user-table tbody tr {
-    transition: background 0.2s ease;
+    transition: transform 0.2s ease;
   }
 
   .user-table tbody tr:hover {
-    background: #fff5f8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 128, 162, 0.15);
+  }
+
+  .user-table tbody tr:hover td {
+    background: #fff5fa;
   }
 
   .btn-view {
     background: #FF80A2;
-    border-color: #FF80A2;
+    border: none;
     color: #fff;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.2s ease;
   }
 
   .btn-view:hover {
     background: #ef6f92;
-    border-color: #ef6f92;
     color: #fff;
   }
 
@@ -78,24 +81,118 @@
     align-items: center;
   }
 
-  .add-record-btn {
+  .search-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: #fff9fc;
+    padding: 8px 12px;
+    border-radius: 10px;
+  }
+
+  .search-input {
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 1px solid #ffc0cb;
+    width: 140px;
+    height: 34px;
+    background: white;
+    transition: border 0.2s ease;
+  }
+
+  .search-input:focus {
+    border-color: #FF80A2;
+    outline: none;
+  }
+
+  .search-btn {
     background: #FF80A2;
     border: none;
     color: white;
-    padding: 10px 20px;
+    padding: 0 16px;
     border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+  }
+
+  .search-btn:hover {
+    background: #ef6f92;
+  }
+
+  .add-record-btn {
+    background: linear-gradient(135deg, #FF80A2 0%, #ff6b9d 100%);
+    border: none;
+    color: white;
+    padding: 0 18px;
+    border-radius: 10px;
     font-weight: 600;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    height: 34px;
     transition: all 0.2s ease;
+    box-shadow: 0 3px 10px rgba(255, 128, 162, 0.3);
   }
 
   .add-record-btn:hover {
-    background: #ef6f92;
-    color: white;
+    background: linear-gradient(135deg, #ef6f92 0%, #ff80a2 100%);
     transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(255, 128, 162, 0.4);
+  }
+
+  .pagination {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .page-link {
+    color: #FF80A2;
+    border: 1px solid #FFB6C1;
+    background: white;
+    padding: 8px 14px;
+    margin: 0 3px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .page-link:hover {
+    background: #FF80A2;
+    color: white;
+    border-color: #FF80A2;
+  }
+
+  .page-item.active .page-link {
+    background: #FF80A2;
+    color: white;
+    border-color: #FF80A2;
+  }
+
+  .page-item.disabled .page-link {
+    color: #ccc;
+    border-color: #ddd;
+  }
+
+  .btn-pink {
+    background: linear-gradient(135deg, #FF80A2 0%, #ff6b9d 100%);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .btn-pink:hover {
+    background: linear-gradient(135deg, #ef6f92 0%, #ff80a2 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(255, 128, 162, 0.4);
   }
 </style>
 
@@ -118,6 +215,10 @@
         </div>
         {% if user.is_superuser %}
           <div class="header-actions">
+            <form method="GET" action="{% url 'home' %}" class="search-form">
+              <input type="number" name="search_id" class="search-input" placeholder="Buscar por ID..." value="{{ request.GET.search_id }}">
+              <button type="submit" class="search-btn">Buscar</button>
+            </form>
             <a href="{% url 'add_record' %}" class="add-record-btn">
               <i class="fas fa-plus"></i> Agregar usuario
             </a>
@@ -162,6 +263,41 @@
             </tbody>
           </table>
         </div>
+        {% if not search_id and records.has_other_pages %}
+          <nav aria-label="Paginacion">
+            <ul class="pagination">
+              {% if records.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ records.previous_page_number }}" aria-label="Anterior">
+                    <i class="fas fa-chevron-left"></i>
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                </li>
+              {% endif %}
+              {% for i in records.paginator.page_range %}
+                {% if records.number == i %}
+                  <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                {% else %}
+                  <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+              {% endfor %}
+              {% if records.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ records.next_page_number }}" aria-label="Siguiente">
+                    <i class="fas fa-chevron-right"></i>
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
       {% else %}
         <div class="alert alert-info mb-0">No hay usuarios registrados para mostrar.</div>
       {% endif %}

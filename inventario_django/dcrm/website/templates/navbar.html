@@ -3,23 +3,30 @@
 <nav style="background: linear-gradient(135deg, #FF80A2 0%, #FFB6C1 100%); padding: 12px 20px; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
   <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; font-weight: 500;">
     <div style="display: flex; align-items: center; gap: 20px;">
-      <a href="{% url 'home' %}" style="color: #fff; text-decoration: none; font-weight: 700; font-size: 18px;">Menu</a>
+      <a href="{% url 'home' %}" style="color: #fff; text-decoration: none; font-weight: 700; font-size: 18px; padding: 5px 10px; border-radius: 6px;">Menu</a>
       {% if user.is_superuser %}
-        <a href="{% url 'add_record' %}" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 14px; display: flex; align-items: center; gap: 5px;">
+        <a href="{% url 'home' %}" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 14px; padding: 5px 10px; border-radius: 6px;">Inicio</a>
+        <a href="{% url 'add_record' %}" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 6px;">
           <i class="fas fa-user-plus" style="font-size: 12px;"></i> Agregar usuario
         </a>
       {% endif %}
     </div>
     
     <div style="display: flex; align-items: center; gap: 15px;">
-      <span style="color: #fff;">{{ user.username }}</span>
+      <span style="color: #fff; font-weight: 500;">{{ user.username }}</span>
       <form method="POST" action="{% url 'logout' %}" style="display: inline;">
         {% csrf_token %}
-        <button type="submit" style="background: #fff; color: #FF6B6B; border: none; padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease;">
-          Cerrar sesion
+        <button type="submit" style="background: white; color: #d94d73; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; display: flex; align-items: center; gap: 5px;">
+          <i class="fas fa-sign-out-alt" style="font-size: 12px;"></i> Salir
         </button>
       </form>
     </div>
+  </div>
+</nav>
+{% else %}
+<nav style="background: linear-gradient(135deg, #FF80A2 0%, #FFB6C1 100%); padding: 12px 20px; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+  <div style="max-width: 1200px; margin: 0 auto; font-weight: 500;">
+    <a href="{% url 'home' %}" style="color: #fff; text-decoration: none; font-weight: 700; font-size: 18px; padding: 5px 10px; border-radius: 6px;">Iniciar</a>
   </div>
 </nav>
 {% endif %}
