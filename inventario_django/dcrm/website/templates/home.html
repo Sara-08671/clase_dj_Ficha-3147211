@@ -275,7 +275,7 @@
             </tbody>
           </table>
         </div>
-        {% if not search_id and records.has_other_pages %}
+        {% if not search_id %}
           <nav aria-label="Paginacion">
             <ul class="pagination">
               {% if records.has_previous %}
@@ -288,6 +288,9 @@
                   </a>
                 </li>
               {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link">Primera</span>
+                </li>
                 <li class="page-item disabled">
                   <span class="page-link"><i class="fas fa-chevron-left"></i></span>
                 </li>
@@ -311,6 +314,9 @@
               {% else %}
                 <li class="page-item disabled">
                   <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                </li>
+                <li class="page-item disabled">
+                  <span class="page-link">Ultima</span>
                 </li>
               {% endif %}
             </ul>

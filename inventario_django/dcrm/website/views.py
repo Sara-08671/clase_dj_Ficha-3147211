@@ -22,7 +22,7 @@ def home(request):
                 return redirect('home')
         else:
             records_list = Record.objects.select_related('user').all().order_by('-created_at')
-            paginator = Paginator(records_list, 10)
+            paginator = Paginator(records_list, 5)
             page_number = request.GET.get('page')
             records = paginator.get_page(page_number)
         return render(request, 'home.html', {'records': records, 'search_id': search_id})
