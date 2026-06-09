@@ -78,7 +78,7 @@
 <div class="form-wrap">
   <div class="form-card">
     <h2>Agregar usuario</h2>
-    <form method="POST" action="{% url 'add_record' %}">
+    <form method="POST" action="{% url 'add_user' %}">
       {% csrf_token %}
 
       {% if form.errors %}

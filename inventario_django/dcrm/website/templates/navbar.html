@@ -6,7 +6,7 @@
       <a href="{% url 'home' %}" style="color: #fff; text-decoration: none; font-weight: 700; font-size: 18px; padding: 5px 10px; border-radius: 6px;">Menu</a>
       {% if user.is_superuser %}
         <a href="{% url 'home' %}" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 14px; padding: 5px 10px; border-radius: 6px;">Inicio</a>
-        <a href="{% url 'add_record' %}" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 6px;">
+        <a href="{% url 'add_user' %}" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 6px;">
           <i class="fas fa-user-plus" style="font-size: 12px;"></i> Agregar usuario
         </a>
       {% endif %}

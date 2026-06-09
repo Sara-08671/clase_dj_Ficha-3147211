@@ -11,9 +11,12 @@ from .models import Record
 
 def home(request):
     if request.user.is_authenticated:
-        search_id = request.GET.get('search_id')
+        search_id = request.GET.get('search_id', '').strip()
         if search_id:
-            records = Record.objects.select_related('user').filter(id=search_id).order_by('-created_at')
+            if not search_id.isdigit():
+                messages.error(request, 'Ingrese un ID valido.')
+                return redirect('home')
+            records = Record.objects.select_related('user').filter(id=search_id)
             if not records.exists():
                 messages.error(request, 'El registro no existe.')
                 return redirect('home')

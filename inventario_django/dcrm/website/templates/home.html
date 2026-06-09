@@ -149,6 +149,8 @@
     margin-top: 25px;
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .page-link {
@@ -156,7 +158,6 @@
     border: 1px solid #FFB6C1;
     background: white;
     padding: 8px 14px;
-    margin: 0 3px;
     border-radius: 8px;
     font-weight: 500;
     transition: all 0.2s ease;
@@ -175,8 +176,16 @@
   }
 
   .page-item.disabled .page-link {
-    color: #ccc;
+    color: #caa0aa;
     border-color: #ddd;
+    background: #fff5fa;
+  }
+
+  .pagination-summary {
+    color: #d94d73;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 12px;
   }
 
   .btn-pink {
@@ -219,7 +228,10 @@
               <input type="number" name="search_id" class="search-input" placeholder="Buscar por ID..." value="{{ request.GET.search_id }}">
               <button type="submit" class="search-btn">Buscar</button>
             </form>
-            <a href="{% url 'add_record' %}" class="add-record-btn">
+            {% if search_id %}
+              <a href="{% url 'home' %}" class="search-btn text-decoration-none">Limpiar</a>
+            {% endif %}
+            <a href="{% url 'add_user' %}" class="add-record-btn">
               <i class="fas fa-plus"></i> Agregar usuario
             </a>
           </div>
@@ -268,6 +280,9 @@
             <ul class="pagination">
               {% if records.has_previous %}
                 <li class="page-item">
+                  <a class="page-link" href="?page=1" aria-label="Primera">Primera</a>
+                </li>
+                <li class="page-item">
                   <a class="page-link" href="?page={{ records.previous_page_number }}" aria-label="Anterior">
                     <i class="fas fa-chevron-left"></i>
                   </a>
@@ -290,12 +305,18 @@
                     <i class="fas fa-chevron-right"></i>
                   </a>
                 </li>
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ records.paginator.num_pages }}" aria-label="Ultima">Ultima</a>
+                </li>
               {% else %}
                 <li class="page-item disabled">
                   <span class="page-link"><i class="fas fa-chevron-right"></i></span>
                 </li>
               {% endif %}
             </ul>
+            <div class="pagination-summary">
+              Pagina {{ records.number }} de {{ records.paginator.num_pages }}
+            </div>
           </nav>
         {% endif %}
       {% else %}
