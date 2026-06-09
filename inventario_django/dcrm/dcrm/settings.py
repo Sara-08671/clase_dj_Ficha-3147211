@@ -23,27 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-mb$us4c%5n&r5mwfu_030&r*6v&i6f0#&p=th6#$s#_0sycn9u'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    '.local.lt',
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    'http://*.local.lt',
-]
-
-#seguridad del protocolo
-SECURE_SSL_REDIRECT = True #redirige todas las solicitudes a HTTPS
-
-#seguridad de cookies
-SSESION_COOKIE_SECURE = True 
-CSRF_COOKIE_SECURE = True  
-CSRF_COOKIE_SAMESITE = 'lax'
-CSRF_COOKIE_HITPONLY = True
 
 # Application definition
 
@@ -156,3 +136,27 @@ def patched_as_sql(self):
     self.returning_fields = None
     return original_as_sql(self)
 SQLInsertCompiler.as_sql = patched_as_sql
+
+# SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = True
+
+ALLOWED_HOSTS = [
+    '*',
+    '127.0.0.1',
+    'localhost',
+    '.loca.lt',
+]
+
+# CSRF_TRUSTED_ORIGINS = [
+#     'http://*.loca.lt',
+# ]
+
+
+# #seguridad del protocolo
+# SECURE_SSL_REDIRECT = True #redirige todas las solicitudes a HTTPS
+
+# #seguridad de cookies
+# SSESION_COOKIE_SECURE = True 
+# CSRF_COOKIE_SECURE = True  
+# CSRF_COOKIE_SAMESITE = 'lax'
+# CSRF_COOKIE_HITPONLY = True
