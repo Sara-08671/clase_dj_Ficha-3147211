@@ -36,6 +36,14 @@ CSRF_TRUSTED_ORIGINS = [
     'http://*.local.lt',
 ]
 
+#seguridad del protocolo
+SECURE_SSL_REDIRECT = True #redirige todas las solicitudes a HTTPS
+
+#seguridad de cookies
+SSESION_COOKIE_SECURE = True 
+CSRF_COOKIE_SECURE = True  
+CSRF_COOKIE_SAMESITE = 'lax'
+CSRF_COOKIE_HITPONLY = True
 
 # Application definition
 
