@@ -1,0 +1,90 @@
+@startuml C4_Model
+!theme plain
+
+title Modelo C4 - Arquitectura Django CRM
+
+!define RECTANGLE class
+
+RECTANGLE Usuario as User {
+    Navegador Web
+}
+
+package "Navegador" as Navegador {
+    RECTANGLE "Django CRM App" as App
+}
+
+package "Servidor Django" {
+    RECTANGLE "Views" as Views {
+        - home()
+        - login_user()
+        - register_user()
+        - logout_user()
+        - notificaciones_list()
+        - crear_notificacion()
+        - editar_notificacion()
+        - eliminar_notificacion()
+        - marcar_leido()
+    }
+    
+    RECTANGLE "Models" as Models {
+        - User
+        - Record
+        - Categoria
+        - Producto
+        - Cliente
+        - Venta
+        - Notificacion
+    }
+    
+    RECTANGLE "Forms" as Forms {
+        - NotificacionForm (validaciones RE)
+        - RegistroForm
+        - AddRecordForm
+    }
+    
+    RECTANGLE "Templates" as Templates {
+        - notificaciones.html (cards)
+        - notificacion_form.html
+        - base.html
+    }
+    
+    RECTANGLE "URLs" as URLs {
+        - /notificaciones/
+        - /notificaciones/crear/
+        - /notificaciones/<pk>/edit/
+        - /notificaciones/<pk>/delete/
+    }
+}
+
+database "MariaDB" as DB {
+    RECTANGLE "Tablas" as Tablas {
+        - auth_user
+        - website_record
+        - website_notificacion
+        - website_categoria
+        - website_producto
+        - website_cliente
+        - website_venta
+    }
+}
+
+User --> Navegador : HTTP Request
+Navegador --> Views : urls.py
+Views --> Models : ORM
+Views --> Forms : Validaciones
+Views --> Templates : Render
+Models --> DB : Migraciones
+
+note right of Forms
+  Validaciones con Regex:
+  - Título: solo alfanumérico y símbolos básicos
+  - Mensaje: filtra caracteres XSS
+end note
+
+note bottom of Views
+  Patrón DRY aplicado:
+  - Formulario NotificacionForm
+  reutilizable para Create/Edit
+end note
+
+@enduml

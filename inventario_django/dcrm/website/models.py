@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import Q
+from django.utils import timezone
 from django.contrib.auth.models import User
 
 # Modelo Registro: almacena información adicional de los usuarios
@@ -62,3 +64,68 @@ class Venta(models.Model):
     
     def __str__(self):
         return f"Venta {self.id} - {self.cliente.nombre}"
+
+
+class NotificacionManager(models.Manager):
+    def para_usuario(self, user):
+        return self.get_queryset().filter(
+            Q(receptor__isnull=True) | Q(receptor=user)
+        )
+
+
+class Notificacion(models.Model):
+    TIPO_CHOICES = [
+        ('info', 'Informativa'),
+        ('aviso', 'Aviso'),
+        ('alerta', 'Alerta'),
+        ('recordatorio', 'Recordatorio'),
+    ]
+
+    tipo = models.CharField(
+        max_length=20,
+        choices=TIPO_CHOICES,
+        default='info'
+    )
+    titulo = models.CharField(max_length=80)
+    mensaje = models.TextField()
+    receptor = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='notificaciones'
+    )
+    creador = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='notificaciones_creadas',
+        editable=False
+    )
+    leida = models.BooleanField(default=False)
+    leida_en = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    objects = NotificacionManager()
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        destino = self.receptor.username if self.receptor else 'Todos'
+        return f"{self.titulo} ({destino})"
+
+    def es_global(self):
+        return self.receptor is None
+
+    def pertenece_a(self, user):
+        return self.receptor is None or self.receptor_id == user.id
+
+    def marcar_leida(self):
+        if not self.leida:
+            self.leida = True
+            self.leida_en = timezone.now()
+            self.save(update_fields=['leida', 'leida_en', 'updated_at'])
+

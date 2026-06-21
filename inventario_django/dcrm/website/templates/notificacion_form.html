@@ -1,357 +1,128 @@
+<!-- MÓDULO NOTIFICACIONES - Formulario Create/Edit -->
+<!-- Reutilizable para crear y editar (patrón DRY) -->
 {% extends 'base.html' %}
-
 {% block content %}
-
 <style>
-
-
-body{
-
+  /* Fondo y estilos generales */
+  body{
     background:#FFB6C1;
-
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
 
-}
-
-
-
-/* CONTENEDOR */
-
-.form-wrap{
-
+  /* Contenedor del formulario */
+  .form-wrap{
     max-width:620px;
-
     margin:40px auto;
-
     padding:20px;
+  }
 
-}
-
-
-
-/* TARJETA */
-
-.form-card{
-
-
+  /* Tarjeta/card del formulario */
+  .form-card{
     background:white;
-
     padding:35px;
-
     border-radius:18px;
-
     box-shadow:0 8px 20px rgba(0,0,0,.15);
+  }
 
-
-}
-
-
-
-/* TITULO */
-
-
-.form-card h2{
-
-
+  /* Título del formulario */
+  .form-card h2{
     color:#d94d73;
-
     font-size:32px;
-
     font-weight:700;
-
     margin-bottom:25px;
+  }
 
-
-}
-
-
-
-
-
-/* DOS COLUMNAS */
-
-
-.form-grid{
-
-
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-    gap:18px;
-
-
-}
-
-
-
-
-/* CAMPOS */
-
-
-.campo label{
-
-
+  /* Campo de formulario con label */
+  .campo label{
     display:block;
-
     font-weight:600;
-
     color:#444;
-
     margin-bottom:6px;
+  }
 
-
-}
-
-
-
-
-.campo input,
-.campo select{
-
-
+  /* Inputs y textarea */
+  .campo input,
+  .campo textarea{
     width:100%;
-
-    height:40px;
-
     padding:8px 12px;
-
     box-sizing:border-box;
-
     border-radius:10px;
-
     border:1px solid #ddd;
-
     font-size:14px;
+  }
 
-
-}
-
-
-
-
-.campo input:focus,
-.campo select:focus{
-
-
+  /* Enfoque de campo - cambia borde a rosa */
+  .campo input:focus,
+  .campo textarea:focus{
     outline:none;
-
     border-color:#FF80A2;
+  }
 
-
-}
-
-
-
-
-/* BOTONES */
-
-
-.btn-pink{
-
-
+  /* Botón submit - color rosa principal */
+  .btn-pink{
     width:100%;
-
     height:42px;
-
     margin-top:25px;
-
     background:#FF80A2;
-
     border:none;
-
     color:white;
-
     border-radius:10px;
-
     font-weight:600;
-
     cursor:pointer;
+  }
 
-
-}
-
-
-
-.btn-pink:hover{
-
-
+  /* Hover del botón */
+  .btn-pink:hover{
     background:#ef6f92;
+  }
 
-
-}
-
-
-
-.btn-cancel{
-
-
+  /* Enlace cancelar */
+  .btn-cancel{
     display:block;
-
     text-align:center;
-
     margin-top:12px;
-
     color:#d94d73;
-
     text-decoration:none;
-
     font-weight:600;
-
-
-}
-
-
-
-
-@media(max-width:600px){
-
-
-.form-grid{
-
-    grid-template-columns:1fr;
-
-}
-
-
-}
-
-
+  }
 </style>
 
-
-
-
-
 <div class="form-wrap">
-
-
 <div class="form-card">
+<h2 class="text-center">{{ title }}</h2>
 
-
-<h2 class="text-center">
-
-Agregar usuario
-
-</h2>
-
-
-
-
-<form method="POST" action="{% url 'add_record' %}">
-
-
+<form method="POST">
 {% csrf_token %}
 
-
-
-
-
 {% if form.errors %}
-
 <div class="alert alert-danger">
-
 Revise los datos ingresados.
-
 </div>
-
 {% endif %}
 
-
-
-
-
-
-<div class="form-grid">
-
-
-
-
-
-{% for field in form %}
-
-
-
 <div class="campo">
-
-
-<label for="{{ field.id_for_label }}">
-
-
-{{ field.label }}
-
-
+<label for="{{ form.titulo.id_for_label }}">
+{{ form.titulo.label }}
 </label>
-
-
-
-{{ field }}
-
-
-
-
-{% for error in field.errors %}
-
-
-<div class="text-danger small">
-
-{{ error }}
-
-</div>
-
-
+{{ form.titulo }}
+{% for error in form.titulo.errors %}
+<div class="text-danger small">{{ error }}</div>
 {% endfor %}
-
-
-
 </div>
 
-
-
-
+<div class="campo mt-3">
+<label for="{{ form.mensaje.id_for_label }}">
+{{ form.mensaje.label }}
+</label>
+{{ form.mensaje }}
+{% for error in form.mensaje.errors %}
+<div class="text-danger small">{{ error }}</div>
 {% endfor %}
-
-
-
-
-
 </div>
 
-
-
-
-
-
-
-<button type="submit" class="btn-pink">
-
-Guardar usuario
-
-</button>
-
-
-
-
-
-<a href="{% url 'home' %}" class="btn-cancel">
-
-Cancelar
-
-</a>
-
-
-
-
-
+<button type="submit" class="btn-pink">Guardar</button>
+<a href="{% url 'notificaciones' %}" class="btn-cancel">Cancelar</a>
 </form>
-
-
-
 </div>
-
-
 </div>
-
-
-
 {% endblock %}

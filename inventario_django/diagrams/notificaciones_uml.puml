@@ -1,0 +1,38 @@
+@startuml
+!theme plain
+
+title Diagrama de Clases - Módulo Notificaciones
+
+class Notificacion {
+    +id: Integer
+    +titulo: CharField
+    +mensaje: TextField
+    +leido: BooleanField
+    +fecha_creacion: DateTimeField
+}
+
+class User {
+    +id: Integer
+    +username: CharField
+    +email: EmailField
+    +password: CharField
+}
+
+class Record {
+    +id: Integer
+    +first_name: CharField
+    +last_name: CharField
+    +email: EmailField
+    +phone: CharField
+}
+
+User "1" --> "0..*" Notificacion : tiene >
+Notificacion --> User : pertenece a >
+
+note right of Notificacion
+  - Validaciones con RE: título y mensaje
+  - Estado leído/no leído
+  - Ordenado por fecha_creacion descendente
+end note
+
+@enduml

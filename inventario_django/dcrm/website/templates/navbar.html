@@ -1,32 +1,226 @@
-{# Navbar que se muestra solo cuando el usuario está autenticado #}
 {% if user.is_authenticated %}
-<nav style="background: linear-gradient(135deg, #FF80A2 0%, #FFB6C1 100%); padding: 12px 20px; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-  <div style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; font-weight: 500;">
-    <div style="display: flex; align-items: center; gap: 20px;">
-      <a href="{% url 'home' %}" style="color: #fff; text-decoration: none; font-weight: 700; font-size: 18px; padding: 5px 10px; border-radius: 6px;">Menu</a>
-      {% if user.is_superuser %}
-        <a href="{% url 'home' %}" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 14px; padding: 5px 10px; border-radius: 6px;">Inicio</a>
-        <a href="{% url 'add_user' %}" style="color: #fff; text-decoration: none; font-weight: 500; font-size: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 6px;">
-          <i class="fas fa-user-plus" style="font-size: 12px;"></i> Agregar usuario
-        </a>
-      {% endif %}
-    </div>
-    
-    <div style="display: flex; align-items: center; gap: 15px;">
-      <span style="color: #fff; font-weight: 500;">{{ user.username }}</span>
-      <form method="POST" action="{% url 'logout' %}" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit" style="background: white; color: #d94d73; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; display: flex; align-items: center; gap: 5px;">
-          <i class="fas fa-sign-out-alt" style="font-size: 12px;"></i> Salir
-        </button>
-      </form>
-    </div>
-  </div>
+
+<nav style="
+background: linear-gradient(135deg, #FF80A2 0%, #FFB6C1 100%);
+padding:12px 20px;
+box-shadow:0 2px 8px rgba(0,0,0,0.15);
+">
+
+
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+max-width:1200px;
+margin:auto;
+">
+
+
+
+<!-- MENU IZQUIERDO -->
+
+<div style="
+display:flex;
+align-items:center;
+gap:25px;
+">
+
+
+
+<a href="{% url 'home' %}"
+style="
+color:white;
+text-decoration:none;
+font-weight:700;
+font-size:18px;
+">
+
+Menu
+
+</a>
+
+
+
+<a href="{% url 'home' %}"
+style="
+color:white;
+text-decoration:none;
+font-size:15px;
+">
+
+Inicio
+
+</a>
+
+
+
+
+<a href="{% url 'add_record' %}"
+style="
+color:white;
+text-decoration:none;
+font-size:15px;
+display:flex;
+align-items:center;
+gap:6px;
+">
+
+<i class="fas fa-user-plus"></i>
+
+Agregar usuario
+
+</a>
+
+
+
+
+<a href="{% url 'notificaciones' %}"
+style="
+color:white;
+text-decoration:none;
+font-size:15px;
+display:flex;
+align-items:center;
+gap:6px;
+position:relative;
+">
+
+<i class="fas fa-bell"></i>
+Notificaciones
+{% if user.is_authenticated and user.notificaciones.filter(leido=False).exists %}
+<span style="
+position:absolute;
+top:-8px;
+right:-12px;
+background:#ff6b9d;
+color:white;
+border-radius:50%;
+padding:2px 6px;
+font-size:11px;
+font-weight:bold;
+">{{ user.notificaciones.filter(leido=False).count }}</span>
+{% endif %}
+
+</a>
+
+
+
+
+</div>
+
+
+
+
+
+<!-- PARTE DERECHA -->
+
+
+<div style="
+display:flex;
+align-items:center;
+gap:18px;
+">
+
+
+
+<span style="
+color:white;
+font-weight:600;
+">
+
+{{ user.username }}
+
+</span>
+
+
+
+
+
+<form method="POST" action="{% url 'logout' %}">
+
+{% csrf_token %}
+
+
+
+<button type="submit"
+
+style="
+background:white;
+color:#d94d73;
+border:none;
+padding:8px 18px;
+border-radius:20px;
+cursor:pointer;
+font-weight:600;
+display:flex;
+align-items:center;
+gap:6px;
+">
+
+
+<i class="fas fa-sign-out-alt"></i>
+
+Salir
+
+
+</button>
+
+
+
+</form>
+
+
+
+</div>
+
+
+
+</div>
+
+
 </nav>
+
+
+
+
 {% else %}
-<nav style="background: linear-gradient(135deg, #FF80A2 0%, #FFB6C1 100%); padding: 12px 20px; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-  <div style="max-width: 1200px; margin: 0 auto; font-weight: 500;">
-    <a href="{% url 'home' %}" style="color: #fff; text-decoration: none; font-weight: 700; font-size: 18px; padding: 5px 10px; border-radius: 6px;">Iniciar</a>
-  </div>
+
+
+
+<nav style="
+background:linear-gradient(135deg,#FF80A2,#FFB6C1);
+padding:12px 20px;
+box-shadow:0 2px 8px rgba(0,0,0,.15);
+">
+
+
+
+<div style="
+max-width:1200px;
+margin:auto;
+">
+
+
+<a href="{% url 'login' %}"
+
+style="
+color:white;
+text-decoration:none;
+font-weight:700;
+font-size:18px;
+">
+
+Iniciar
+
+</a>
+
+
+
+</div>
+
+
 </nav>
+
+
+
 {% endif %}

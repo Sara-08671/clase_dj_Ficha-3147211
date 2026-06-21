@@ -1,0 +1,205 @@
+<!-- MÓDULO NOTIFICACIONES - Template principal -->
+<!-- Muestra lista de notificaciones con diseño de cards -->
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  /* Estilos generales - fondo degradado rosado */
+  body {
+    background: linear-gradient(135deg, #ffcde6 0%, #ffb6c1 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* Contenedor principal con ancho máximo */
+  .page-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 16px;
+  }
+
+  /* Panel contenedor de notificaciones */
+  .panel {
+    background: #fff9fc;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(255, 128, 162, 0.15);
+  }
+
+  /* Título de la sección */
+  .panel-title {
+    color: #d94d73;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  /* Card individual de notificación - estilo tarjeta */
+  .notification-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid #FF80A2;
+    transition: transform 0.2s ease;
+  }
+
+  /* Hover effect en cards */
+  .notification-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 128, 162, 0.2);
+  }
+
+  /* Estado leído - estilo visual diferenciado */
+  .notification-card.leido {
+    border-left-color: #ccc;
+    opacity: 0.7;
+  }
+
+  /* Título de la notificación */
+  .notification-titulo {
+    color: #d94d73;
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  /* Mensaje de la notificación */
+  .notification-mensaje {
+    color: #555;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  /* Fecha y estado de la notificación */
+  .notification-fecha {
+    color: #999;
+    font-size: 12px;
+  }
+
+  /* Botones de acción - flexbox */
+  .notification-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* Botón principal - color rosa */
+  .btn-pink {
+    background: #FF80A2;
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-pink:hover {
+    background: #ef6f92;
+    color: #fff;
+  }
+
+  /* Botón outline - para marcar leído */
+  .btn-outline-pink {
+    background: white;
+    border: 1px solid #FF80A2;
+    color: #FF80A2;
+  }
+
+  .btn-outline-pink:hover {
+    background: #FF80A2;
+    color: white;
+  }
+
+  /* Botón eliminar - color más intenso */
+  .btn-danger-pink {
+    background: #ff6b9d;
+  }
+
+  .btn-danger-pink:hover {
+    background: #ff4d8a;
+  }
+
+  /* Estado vacío - sin notificaciones */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+  }
+
+  .empty-state i {
+    font-size: 48px;
+    color: #d94d73;
+    margin-bottom: 15px;
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="panel">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="panel-title h3 mb-0">🔔 Notificaciones</h1>
+      <a href="{% url 'crear_notificacion' %}" class="btn-pink">
+        <i class="fas fa-plus"></i> Nueva notificación
+      </a>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if notificaciones %}
+      {% for notificacion in notificaciones %}
+        <div class="notification-card {% if notificacion.leido %}leido{% endif %}">
+          <h5 class="notification-titulo">{{ notificacion.titulo }}</h5>
+          <p class="notification-mensaje">{{ notificacion.mensaje }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="notification-fecha">
+              <i class="fas fa-clock"></i> {{ notificacion.fecha_creacion|date:"d/m/Y H:i" }}
+              {% if notificacion.leido %}
+                <span class="badge bg-secondary ms-2">Leído</span>
+              {% else %}
+                <span class="badge bg-primary ms-2">Nuevo</span>
+              {% endif %}
+            </span>
+            <div class="notification-actions">
+              {% if not notificacion.leido %}
+                <a href="{% url 'marcar_leido' notificacion.id %}" class="btn btn-sm btn-outline-pink">
+                  <i class="fas fa-check"></i> Marcar leído
+                </a>
+              {% endif %}
+              <a href="{% url 'editar_notificacion' notificacion.id %}" class="btn btn-sm btn-pink">
+                <i class="fas fa-edit"></i> Editar
+              </a>
+              <a href="{% url 'eliminar_notificacion' notificacion.id %}" class="btn btn-sm btn-pink btn-danger-pink" onclick="return confirm('¿Desea eliminar esta notificación?');">
+                <i class="fas fa-trash"></i> Eliminar
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <i class="fas fa-bell-slash"></i>
+        <p class="mb-0">No tienes notificaciones registradas.</p>
+      </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+      <a href="{% url 'home' %}" class="btn-pink">
+        <i class="fas fa-arrow-left"></i> Volver al inicio
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

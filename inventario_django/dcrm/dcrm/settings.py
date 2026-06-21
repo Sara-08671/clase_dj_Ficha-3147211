@@ -160,3 +160,8 @@ ALLOWED_HOSTS = [
 # CSRF_COOKIE_SECURE = True  
 # CSRF_COOKIE_SAMESITE = 'lax'
 # CSRF_COOKIE_HITPONLY = True
+
+SESSION_COOKIE_AGE = 100 
+
+SESSION_SAVE_EVERY_REQUEST = True  # Reinicia el contador de tiempo de sesión en cada solicitud
+SESSION_EXPIRE_BROWSER_CLOSE = True  # Expira la sesión al cerrar el navegador

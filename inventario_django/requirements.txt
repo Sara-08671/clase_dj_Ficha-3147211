@@ -14,3 +14,7 @@ weasyprint>=61.0
 
 # Manejo de variables de entorno (Seguridad)
 python-dotenv>=1.0.0
+
+
+# Librería para validaciones avanzadas
+django-validators>=0.0.1

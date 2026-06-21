@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Record
+from .models import Record, Notificacion
 
 # --- Admin para Record ---
 @admin.register(Record)
@@ -11,6 +11,14 @@ class RecordAdmin(admin.ModelAdmin):
     list_filter = ('state', 'city', 'created_at')
     ordering = ('-created_at',)
     readonly_fields = ('created_at',)
+
+@admin.register(Notificacion)
+class NotificacionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'titulo', 'tipo', 'receptor', 'leida', 'creador', 'created_at')
+    search_fields = ('titulo', 'mensaje', 'receptor__username', 'creador__username')
+    list_filter = ('tipo', 'leida', 'created_at')
+    ordering = ('-created_at',)
+    readonly_fields = ('creador', 'leida_en', 'created_at', 'updated_at')
 
 # --- Inline para ver/editar el Record dentro del User ---
 class RecordInline(admin.StackedInline):
