@@ -1,0 +1,45 @@
+@startuml C2_Contenedores
+!theme plain
+
+title C2 - Contenedores del Sistema Django CRM
+
+Person(admin, "Administrador")
+Person(organizer, "Organizador")
+Person(resident, "Residente")
+
+System_Boundary(browser, "Navegador") {
+    Container(browser_ui, "Templates HTML + Bootstrap local", "HTML/CSS/JS", "Vistas, cards, alertas y SPA parcial")
+}
+
+System_Boundary(server, "Servidor Django") {
+    Container(urls, "urls.py", "Enrutamiento", "Define rutas publicas y protegidas")
+    Container(views, "views.py", "Controladores", "Login, roles, CRUD, notificaciones")
+    Container(forms, "forms.py", "Validacion", "ModelForm y expresiones regulares")
+    Container(models, "models.py", "Modelos", "User, Record, Notificacion, inventario")
+    Container(admin, "admin.py", "Panel Admin", "Administracion de modelos")
+}
+
+SystemDb(database, "MariaDB", "Base de datos relacional")
+
+admin -down-> browser_ui : Inicia sesion
+organizer -down-> browser_ui : Inicia sesion
+resident -down-> browser_ui : Inicia sesion
+browser_ui -right-> urls : HTTP
+urls -right-> views : Vista seleccionada
+views -down-> forms : Valida datos
+views -down-> models : ORM
+models -down-> database : Persistencia
+views -right-> admin : Registro opcional de modelos
+
+note right of forms
+  Validaciones con Regex:
+  usuario/correo, contrasena, titulo y mensaje.
+end note
+
+note left of views
+  Decoradores:
+  login_required, require_GET, require_POST,
+  admin_required para Admin/Organizador.
+end note
+
+@enduml

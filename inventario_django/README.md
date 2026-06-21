@@ -29,8 +29,14 @@ Sistema CRM desarrollado en Django con módulo de notificaciones, roles de usuar
 ```bash
 pip install -r requirements.txt
 python manage.py migrate
+python manage.py crear_roles_demo
 python manage.py runserver
 ```
+
+Después de ejecutar `crear_roles_demo`, use estas cuentas para demostrar los roles:
+- Administrador: `admin_demo` / `Admin12345`
+- Organizador: `organizador_demo` / `Organizador12345`
+- Residente: `residente_demo` / `Residente12345`
 
 ## Dependencias principales
 - Django>=5.0,<5.1

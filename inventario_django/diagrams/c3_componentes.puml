@@ -1,0 +1,47 @@
+@startuml C3_Componentes
+!theme plain
+
+title C3 - Componentes del Sistema Django CRM
+
+Person(user, "Usuario Autenticado")
+
+Database(database, "MariaDB")
+
+package "website" {
+    component(urls, "urls.py") as urls
+    component(views, "views.py") as views
+    component(forms, "forms.py") as forms
+    component(models, "models.py") as models
+    component(templates, "templates/*.html") as templates
+    component(admin, "admin.py") as admin
+}
+
+user --> urls : URL /login, /home, /record, /notificaciones
+urls --> views : dispatch
+views --> forms : validacion y guardado
+views --> models : consultas ORM
+views --> templates : render con contexto
+templates --> user : HTML + Bootstrap local
+models --> database : tablas
+admin --> models : registro en Django Admin
+
+package "Componentes de vistas" {
+    component(auth, "Auth")
+    component(record_crud, "CRUD Record")
+    component(notification_crud, "CRUD Notificaciones")
+    component(roles, "Control de Roles")
+}
+
+views -down-> auth : login/logout/register
+views -down-> record_crud : create/read/update/delete
+views -down-> notification_crud : create/read/update/delete
+views -down-> roles : admin_required, permisos por rol
+forms -down-> roles : RegistroForm con campo tipo_rol
+
+note right of roles
+  Admin: is_superuser=True
+  Organizador: is_staff=True o grupo Organizador
+  Residente: usuario normal
+end note
+
+@enduml

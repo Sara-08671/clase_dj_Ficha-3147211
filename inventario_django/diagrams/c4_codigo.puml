@@ -1,0 +1,144 @@
+@startuml C4_Codigo
+!theme plain
+
+title C4 - Código del Sistema Django CRM
+
+package "website" {
+    class views {
+        +home()
+        +login_user()
+        +register_user()
+        +logout_user()
+        +add_record()
+        +customer_records(pk)
+        +edit_record(pk)
+        +delete_record(pk)
+        +notificaciones()
+        +notificaciones_admin()
+        +notificaciones_usuario()
+        +notificacion_crear()
+        +notificacion_editar(pk)
+        +notificacion_eliminar(pk)
+        +notificacion_detalle(pk)
+        +notificacion_marcar_leida(pk)
+        +notificaciones_marcar_todas_leidas()
+        +admin_required()
+        +get_accessible_record_or_redirect()
+    }
+
+    class forms {
+        +RegistroForm
+        +AddRecordForm
+        +NotificacionForm
+        +clean_titulo()
+        +clean_mensaje()
+        +clean_receptor()
+    }
+
+    class models {
+        +Record
+        +Categoria
+        +Producto
+        +Cliente
+        +Venta
+        +Notificacion
+        +NotificacionManager
+    }
+
+    class urls {
+        +urlpatterns
+    }
+
+    class admin {
+        +RecordAdmin
+        +NotificacionAdmin
+        +CustomUserAdmin
+    }
+}
+
+package "templates" {
+    class base_html {
+        Bootstrap local
+        alertas messages
+    }
+    class navbar_html {
+        menu por rol
+    }
+    class home_html {
+        listado/paginacion/busqueda
+    }
+    class login_html {
+        login con regex visual
+    }
+    class add_record_html {
+        selector de rol
+    }
+    class record_html {
+        detalle de registro
+    }
+    class record_form_html {
+        formulario create/edit
+    }
+    class notificaciones_html {
+        SPA parcial
+        cards/notificaciones
+    }
+}
+
+package "static" {
+    class bootstrap_css {
+        css/bootstrap.min.css
+    }
+    class bootstrap_js {
+        js/bootstrap.bundle.min.js
+    }
+    class custom_css {
+        css/custom-pink.css
+    }
+}
+
+database "MariaDB" as DB {
+    class auth_user
+    class website_record
+    class website_notificacion
+    class website_categoria
+    class website_producto
+    class website_cliente
+    class website_venta
+}
+
+urls --> views : dispatch
+views --> forms : valida y guarda
+views --> models : ORM
+views --> base_html : render
+base_html --> navbar_html : include
+base_html --> bootstrap_css : static
+base_html --> bootstrap_js : static
+base_html --> custom_css : static
+navbar_html --> views : enlaces
+home_html --> views : acciones CRUD
+add_record_html --> forms : tipo_rol
+notificaciones_html --> forms : NotificacionForm
+forms --> models : ModelForm
+models --> DB : migraciones
+admin --> models : registro admin
+
+note right of forms
+  Patrón ModelForm:
+  RegistroForm, AddRecordForm y NotificacionForm
+  reutilizan modelo, validación y renderizado.
+end note
+
+note left of views
+  Patrón Decorador:
+  admin_required centraliza acceso
+  para Admin y Organizador.
+end note
+
+note bottom of models
+  Patrón Manager/Repository:
+  NotificacionManager.para_usuario()
+  encapsula consultas por destinatario.
+end note
+
+@enduml

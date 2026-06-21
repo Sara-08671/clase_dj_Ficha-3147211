@@ -1,0 +1,26 @@
+@startuml C1_Contexto
+!theme plain
+
+title C1 - Contexto del Sistema Django CRM
+
+Person(admin, "Administrador", "Gestiona usuarios, registros y notificaciones")
+Person(organizer, "Organizador", "Gestiona usuarios y notificaciones")
+Person(resident, "Residente", "Consulta y gestiona su propio registro")
+
+System_Boundary(app, "Sistema Django CRM") {
+    System(django, "Django CRM", "Login, roles, CRUD, notificaciones y Bootstrap local")
+}
+
+SystemDb(mysql, "MariaDB", "Usuarios, registros, categorias, productos, clientes, ventas y notificaciones")
+
+admin -down-> django : Solicitudes HTTP
+organizer -down-> django : Solicitudes HTTP
+resident -down-> django : Solicitudes HTTP
+django -right-> mysql : ORM Django / Consultas SQL
+
+note right of django
+  Frontend con templates Django + Bootstrap local.
+  Backend con views, forms, models, urls y admin.
+end note
+
+@enduml
