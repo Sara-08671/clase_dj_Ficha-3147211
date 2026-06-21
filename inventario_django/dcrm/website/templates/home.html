@@ -413,7 +413,7 @@
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
           <h1 class="panel-title h3 mb-1">Historial de usuarios</h1>
-          <p class="text-muted mb-0">Usuarios registrados en el sistema.</p>
+          <p class="text-muted mb-0">Rol activo: {{ role_label }}. Usuarios visibles segun permisos del sistema.</p>
         </div>
         <div class="search-container">
 
@@ -429,8 +429,6 @@ placeholder="Buscar usuario por ID">
 
 
 <button type="submit">
-
-<i class="fas fa-search"></i>
 
 Buscar
 
@@ -451,10 +449,10 @@ Limpiar
 
 
 </div>
-        {% if user.is_superuser %}
+        {% if can_manage_records %}
           <div class="header-actions">
             <a href="{% url 'add_record' %}" class="add-record-btn">
-              <i class="fas fa-plus"></i> Agregar usuario
+              + Agregar usuario
             </a>
             <form method="GET" action="{% url 'home' %}" class="search-form">
               <input type="number" name="search_id" class="search-input" placeholder="Buscar por ID..." value="{{ request.GET.search_id }}">
@@ -481,7 +479,7 @@ Limpiar
                 <th>Estado</th>
                 <th>Codigo postal</th>
                 <th>Fecha creacion</th>
-                <th class="table-actions">Acciones</th>
+                  <th class="table-actions">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -498,6 +496,13 @@ Limpiar
                   <td>{{ record.created_at|date:"d/m/Y H:i" }}</td>
                   <td>
                     <a class="btn btn-sm btn-view" href="{% url 'record' record.id %}">Ver</a>
+                    {% if can_manage_records %}
+                      <a class="btn btn-sm btn-view" href="{% url 'edit_record' record.id %}">Editar</a>
+                      <form method="POST" action="{% url 'delete_record' record.id %}" class="d-inline" onsubmit="return confirm('Desea eliminar este usuario?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-view">Eliminar</button>
+                      </form>
+                    {% endif %}
                   </td>
                 </tr>
               {% endfor %}
@@ -533,7 +538,7 @@ Primera
 
 <a href="?page={{ records.previous_page_number }}">
 
-<i class="fas fa-chevron-left"></i>
+<i aria-hidden="true">‹</i>
 
 </a>
 
@@ -559,7 +564,7 @@ Primera
 
 <span class="disabled">
 
-<i class="fas fa-chevron-left"></i>
+<i aria-hidden="true">‹</i>
 
 </span>
 
@@ -624,7 +629,7 @@ Primera
 
 <a href="?page={{ records.next_page_number }}">
 
-<i class="fas fa-chevron-right"></i>
+<i aria-hidden="true">›</i>
 
 </a>
 
@@ -650,7 +655,7 @@ Primera
 
 <span class="disabled">
 
-<i class="fas fa-chevron-right"></i>
+<i aria-hidden="true">›</i>
 
 </span>
 

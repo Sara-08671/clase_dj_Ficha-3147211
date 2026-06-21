@@ -160,11 +160,13 @@
 
     <div class="action-btns">
       <a href="{% url 'home' %}" class="btn btn-pink">Volver</a>
-      <a href="{% url 'edit_record' customer_record.id %}" class="btn btn-pink btn-warning-pink">Editar</a>
-      <form method="POST" action="{% url 'delete_record' customer_record.id %}" onsubmit="return confirm('Desea eliminar este usuario?');" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-pink">Eliminar</button>
-      </form>
+      {% if can_manage_records %}
+        <a href="{% url 'edit_record' customer_record.id %}" class="btn btn-pink btn-warning-pink">Editar</a>
+        <form method="POST" action="{% url 'delete_record' customer_record.id %}" onsubmit="return confirm('Desea eliminar este usuario?');" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-pink">Eliminar</button>
+        </form>
+      {% endif %}
     </div>
   </div>
 </div>

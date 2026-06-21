@@ -128,7 +128,7 @@
       <div>
         <h1 class="notificaciones-title h3 mb-1">Modulo de Notificaciones</h1>
         <p class="text-muted mb-0">
-          {% if role == 'admin' %}Panel administrativo con CRUD completo.{% else %}Bandeja de notificaciones del usuario.{% endif %}
+          {% if can_manage_notifications %}Panel administrativo y de organizador con CRUD completo.{% else %}Bandeja de notificaciones del residente.{% endif %}
         </p>
       </div>
       <div class="d-flex gap-2">
@@ -151,7 +151,7 @@
       </div>
       <div class="col-md-4">
         <div class="summary-card">
-          <div class="summary-number">{{ role|default:'usuario' }}</div>
+          <div class="summary-number">{{ role_label|default:role|default:'Residente' }}</div>
           <div class="text-muted">Rol activo</div>
         </div>
       </div>
@@ -161,10 +161,10 @@
   <div class="notificaciones-card mb-4">
     <div class="spa-nav d-flex flex-wrap gap-2 mb-3">
       <button type="button" class="btn btn-outline-pink" data-spa-target="spa-lista">Lista</button>
-      {% if role == 'admin' %}
+      {% if can_manage_notifications %}
         <a href="{% url 'notificacion_crear' %}" class="btn btn-outline-pink" data-spa-link="spa-crear">Crear</a>
       {% endif %}
-      {% if role == 'usuario' and no_leidas > 0 %}
+      {% if not can_manage_notifications and no_leidas > 0 %}
         <form method="POST" action="{% url 'notificaciones_marcar_todas_leidas' %}" class="d-inline">
           {% csrf_token %}
           <button type="submit" class="btn btn-outline-pink">Marcar todas como leidas</button>
@@ -173,7 +173,7 @@
     </div>
 
     <section id="spa-lista" data-spa-section>
-      {% if role == 'admin' %}
+      {% if can_manage_notifications %}
         <form method="GET" class="row g-2 mb-4">
           <div class="col-md-4">
             <input type="text" name="busqueda" class="form-control" placeholder="Buscar por titulo" value="{{ busqueda|default:'' }}">
@@ -217,13 +217,13 @@
                 <p class="mb-3">{{ notificacion.mensaje|truncatechars:120 }}</p>
                 <div class="d-flex flex-wrap gap-2">
                   <a href="{% url 'notificacion_detalle' notificacion.id %}" class="btn btn-sm btn-outline-pink">Ver</a>
-                  {% if role == 'usuario' and not notificacion.leida %}
+                  {% if not can_manage_notifications and not notificacion.leida %}
                     <form method="POST" action="{% url 'notificacion_marcar_leida' notificacion.id %}" class="d-inline">
                       {% csrf_token %}
                       <button type="submit" class="btn btn-sm btn-pink">Marcar leida</button>
                     </form>
                   {% endif %}
-                  {% if role == 'admin' %}
+                  {% if can_manage_notifications %}
                     <a href="{% url 'notificacion_editar' notificacion.id %}" class="btn btn-sm btn-outline-pink">Editar</a>
                     <form method="POST" action="{% url 'notificacion_eliminar' notificacion.id %}" class="d-inline" onsubmit="return confirm('Desea eliminar esta notificacion?');">
                       {% csrf_token %}
@@ -284,7 +284,7 @@
             </div>
             <div class="d-flex gap-2 mt-4">
               <button type="submit" class="btn btn-pink">Guardar</button>
-              {% if role == 'admin' %}
+              {% if can_manage_notifications %}
                 <a href="{% url 'notificaciones_admin' %}" class="btn btn-outline-pink">Cancelar</a>
               {% else %}
                 <a href="{% url 'notificaciones_usuario' %}" class="btn btn-outline-pink">Cancelar</a>
@@ -332,13 +332,13 @@
           </div>
           <div class="d-flex flex-wrap gap-2 mt-4">
             <a href="{% url 'notificaciones' %}" class="btn btn-outline-pink">Volver a la lista</a>
-            {% if role == 'usuario' and not notificacion.leida %}
+            {% if not can_manage_notifications and not notificacion.leida %}
               <form method="POST" action="{% url 'notificacion_marcar_leida' notificacion.id %}" class="d-inline">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-pink">Marcar como leida</button>
               </form>
             {% endif %}
-            {% if role == 'admin' %}
+            {% if can_manage_notifications %}
               <a href="{% url 'notificacion_editar' notificacion.id %}" class="btn btn-outline-pink">Editar</a>
               <form method="POST" action="{% url 'notificacion_eliminar' notificacion.id %}" class="d-inline" onsubmit="return confirm('Desea eliminar esta notificacion?');">
                 {% csrf_token %}

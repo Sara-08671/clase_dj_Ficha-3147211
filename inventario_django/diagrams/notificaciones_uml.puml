@@ -7,8 +7,10 @@ class Notificacion {
     +id: Integer
     +titulo: CharField
     +mensaje: TextField
-    +leido: BooleanField
-    +fecha_creacion: DateTimeField
+    +leida: BooleanField
+    +leida_en: DateTimeField
+    +created_at: DateTimeField
+    +updated_at: DateTimeField
 }
 
 class User {
@@ -31,8 +33,9 @@ Notificacion --> User : pertenece a >
 
 note right of Notificacion
   - Validaciones con RE: título y mensaje
-  - Estado leído/no leído
-  - Ordenado por fecha_creacion descendente
+  - Estado leida/no_leida
+  - Ordenado por created_at descendente
+  - Roles: admin, organizador, residente
 end note
 
 @enduml

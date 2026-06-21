@@ -7,6 +7,7 @@ title Modelo C4 - Arquitectura Django CRM
 
 RECTANGLE Usuario as User {
     Navegador Web
+    Roles: Administrador, Organizador, Residente
 }
 
 package "Navegador" as Navegador {
@@ -19,11 +20,13 @@ package "Servidor Django" {
         - login_user()
         - register_user()
         - logout_user()
-        - notificaciones_list()
-        - crear_notificacion()
-        - editar_notificacion()
-        - eliminar_notificacion()
-        - marcar_leido()
+        - notificaciones()
+        - notificaciones_admin()
+        - notificaciones_usuario()
+        - notificacion_crear()
+        - notificacion_editar()
+        - notificacion_eliminar()
+        - notificacion_marcar_leida()
     }
     
     RECTANGLE "Models" as Models {
