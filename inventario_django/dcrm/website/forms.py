@@ -5,6 +5,16 @@ import re
 from .models import Record, Notificacion
 
 
+ROLE_ADMIN = 'admin'
+ROLE_ORGANIZADOR = 'organizador'
+ROLE_RESIDENTE = 'residente'
+ROLE_CHOICES = [
+    (ROLE_RESIDENTE, 'Residente'),
+    (ROLE_ORGANIZADOR, 'Organizador'),
+    (ROLE_ADMIN, 'Administrador'),
+]
+
+
 class RegistroForm(UserCreationForm):
     first_name = forms.CharField(
         label='Nombre',
@@ -62,7 +72,7 @@ class RegistroForm(UserCreationForm):
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de usuario'}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, role_selection=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].label = 'Usuario'
         self.fields['password1'].label = 'Contrasena'
@@ -73,12 +83,23 @@ class RegistroForm(UserCreationForm):
         self.fields['password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Contrasena'})
         self.fields['password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Confirmar contrasena'})
 
+        if role_selection:
+            self.fields['tipo_rol'] = forms.ChoiceField(
+                label='Rol',
+                choices=ROLE_CHOICES,
+                initial=ROLE_RESIDENTE,
+                widget=forms.Select(attrs={'class': 'form-control'})
+            )
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         username = user.username
+        role = self.cleaned_data.get('tipo_rol', ROLE_RESIDENTE)
+        user.is_staff = role in (ROLE_ORGANIZADOR, ROLE_ADMIN)
+        user.is_superuser = role == ROLE_ADMIN
 
         if commit:
             user.save()

@@ -17,6 +17,7 @@ margin:auto;
 
 
 
+
 <!-- MENU IZQUIERDO -->
 
 <div style="
@@ -24,6 +25,7 @@ display:flex;
 align-items:center;
 gap:25px;
 ">
+
 
 
 
@@ -41,6 +43,7 @@ Menu
 
 
 
+
 <a href="{% url 'home' %}"
 style="
 color:white;
@@ -55,6 +58,7 @@ Inicio
 
 
 
+{% if user.is_superuser or user.is_staff %}
 <a href="{% url 'add_record' %}"
 style="
 color:white;
@@ -65,11 +69,10 @@ align-items:center;
 gap:6px;
 ">
 
-<i class="fas fa-user-plus"></i>
-
-Agregar usuario
++ Agregar usuario
 
 </a>
+{% endif %}
 
 
 
@@ -85,7 +88,6 @@ gap:6px;
 position:relative;
 ">
 
-<i class="fas fa-bell"></i>
 Notificaciones
 {% if user.is_authenticated and user.notificaciones.count %}
 <span style="
@@ -111,7 +113,6 @@ font-weight:bold;
 
 
 
-
 <!-- PARTE DERECHA -->
 
 
@@ -123,12 +124,13 @@ gap:18px;
 
 
 
+
 <span style="
 color:white;
 font-weight:600;
 ">
 
-{{ user.username }}
+{{ user.username }} - {% if user.is_superuser %}Administrador{% elif user.is_staff %}Organizador{% else %}Residente{% endif %}
 
 </span>
 
@@ -158,8 +160,6 @@ gap:6px;
 ">
 
 
-<i class="fas fa-sign-out-alt"></i>
-
 Salir
 
 
@@ -176,6 +176,7 @@ Salir
 
 
 </div>
+
 
 
 </nav>
