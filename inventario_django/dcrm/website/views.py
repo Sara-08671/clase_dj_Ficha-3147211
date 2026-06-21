@@ -22,6 +22,7 @@ ROLE_ORGANIZADOR = 'organizador'
 ROLE_RESIDENTE = 'residente'
 ORGANIZER_GROUP_NAME = 'Organizador'
 
+# Mapa de roles usado para explicar permisos en templates y README.
 ROLE_LABELS = {
     ROLE_ADMIN: 'Administrador',
     ROLE_ORGANIZADOR: 'Organizador',
@@ -30,14 +31,17 @@ ROLE_LABELS = {
 
 
 def user_has_admin_role(user):
+    # Administrador: is_superuser=True. Tiene acceso total al CRUD y notificaciones.
     return user.is_superuser
 
 
 def user_has_organizer_role(user):
+    # Organizador: is_staff=True o grupo Organizador. Tiene permisos de gestion.
     return user.is_staff or user.groups.filter(name=ORGANIZER_GROUP_NAME).exists()
 
 
 def user_has_management_role(user):
+    # Administrador y Organizador pueden gestionar usuarios y notificaciones.
     return user_has_admin_role(user) or user_has_organizer_role(user)
 
 
@@ -54,10 +58,12 @@ def get_role_label(role):
 
 
 def user_can_manage_record(user, record):
+    # Residente solo puede gestionar su propio registro; Admin/Organizador gestionan todos.
     return user_has_management_role(user) or record.user_id == user.id
 
 
 def admin_required(view_func):
+    # Decorador central de seguridad para vistas de Admin/Organizador.
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:

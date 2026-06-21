@@ -230,13 +230,13 @@ body{
 
 
 <h2 class="text-center">
-
 Agregar usuario
 
 </h2>
 
-
-
+<div class="alert alert-info mb-4">
+Seleccione el rol del nuevo usuario. Solo los roles Administrador y Organizador pueden acceder a esta pantalla.
+</div>
 
 <form method="POST" action="{% url 'add_record' %}">
 

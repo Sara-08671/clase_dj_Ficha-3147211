@@ -84,6 +84,7 @@ class RegistroForm(UserCreationForm):
         self.fields['password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Confirmar contrasena'})
 
         if role_selection:
+            # Campo visible solo en Agregar usuario para Admin/Organizador.
             self.fields['tipo_rol'] = forms.ChoiceField(
                 label='Rol',
                 choices=ROLE_CHOICES,
@@ -98,6 +99,7 @@ class RegistroForm(UserCreationForm):
         user.last_name = self.cleaned_data['last_name']
         username = user.username
         role = self.cleaned_data.get('tipo_rol', ROLE_RESIDENTE)
+        # Residente: flags en False. Organizador: is_staff=True. Admin: is_superuser=True.
         user.is_staff = role in (ROLE_ORGANIZADOR, ROLE_ADMIN)
         user.is_superuser = role == ROLE_ADMIN
 
