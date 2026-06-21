@@ -2,48 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 import re
-from .models import Record, Notificacion, Notificacion
-import re
-
-
-# ==============================
-# MÓDULO NOTIFICACIONES
-# ==============================
-
-# NotificacionForm: Formulario con validaciones de seguridad
-# - validación clean_titulo: filtra caracteres no permitidos usando regex
-# - validación clean_mensaje: previene inyección XSS filtrando caracteres especiales
-class NotificacionForm(forms.ModelForm):
-    titulo = forms.CharField(
-        label='Título',
-        max_length=200,
-        required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Título de la notificación'})
-    )
-    mensaje = forms.CharField(
-        label='Mensaje',
-        required=True,
-        widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Mensaje de la notificación', 'rows': 4})
-    )
-
-    class Meta:
-        model = Notificacion
-        fields = ('titulo', 'mensaje')
-
-    # Validación: solo permite letras, números y símbolos básicos en el título
-    def clean_titulo(self):
-        titulo = self.cleaned_data.get('titulo', '')
-        if not re.match(r'^[a-zA-Z0-9\s\-_.,!?]+$', titulo):
-            raise forms.ValidationError('El título contiene caracteres no permitidos. Solo se permiten letras, números y símbolos básicos (espacio, guion, guion bajo, punto, coma, signo de interrogación y exclamación).')
-        return titulo
-
-    # Validación: filtra caracteres XSS peligrosos del mensaje
-    def clean_mensaje(self):
-        mensaje = self.cleaned_data.get('mensaje', '')
-        clean_msg = re.sub(r'[<>"\'\\;(){}]', '', mensaje)
-        if clean_msg != mensaje:
-            raise forms.ValidationError('El mensaje contiene caracteres especiales no permitidos.')
-        return mensaje
+from .models import Record, Notificacion
 
 
 class RegistroForm(UserCreationForm):

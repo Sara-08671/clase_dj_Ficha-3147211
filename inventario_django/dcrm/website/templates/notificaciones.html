@@ -1,205 +1,389 @@
-<!-- MÓDULO NOTIFICACIONES - Template principal -->
-<!-- Muestra lista de notificaciones con diseño de cards -->
 {% extends 'base.html' %}
+
 {% block content %}
 <style>
-  /* Estilos generales - fondo degradado rosado */
   body {
-    background: linear-gradient(135deg, #ffcde6 0%, #ffb6c1 100%);
+    background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
   }
 
-  /* Contenedor principal con ancho máximo */
-  .page-wrap {
-    max-width: 900px;
+  .notificaciones-wrap {
+    max-width: 1180px;
     margin: 0 auto;
     padding: 28px 16px;
   }
 
-  /* Panel contenedor de notificaciones */
-  .panel {
-    background: #fff9fc;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 8px 30px rgba(255, 128, 162, 0.15);
+  .notificaciones-card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 8px 30px rgba(255, 128, 162, 0.18);
   }
 
-  /* Título de la sección */
-  .panel-title {
+  .notificaciones-title {
     color: #d94d73;
+    font-weight: 800;
+  }
+
+  .summary-card {
+    border-radius: 16px;
+    background: #fff5fa;
+    border: 1px solid #ffd6e2;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .summary-number {
+    color: #d94d73;
+    font-size: 30px;
+    font-weight: 800;
+  }
+
+  .spa-nav .btn {
+    border-radius: 999px;
     font-weight: 700;
-    margin-bottom: 20px;
   }
 
-  /* Card individual de notificación - estilo tarjeta */
+  .spa-nav .btn.active {
+    background: #FF80A2;
+    border-color: #FF80A2;
+    color: white;
+  }
+
   .notification-card {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 15px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    border-left: 4px solid #FF80A2;
-    transition: transform 0.2s ease;
+    border: 1px solid #ffd6e2;
+    border-left: 5px solid #FF80A2;
+    border-radius: 16px;
+    padding: 18px;
+    background: #fff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
-  /* Hover effect en cards */
   .notification-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 128, 162, 0.2);
+    box-shadow: 0 8px 20px rgba(255, 128, 162, 0.16);
   }
 
-  /* Estado leído - estilo visual diferenciado */
-  .notification-card.leido {
-    border-left-color: #ccc;
-    opacity: 0.7;
+  .notification-card.read {
+    border-left-color: #999;
+    background: #fafafa;
   }
 
-  /* Título de la notificación */
-  .notification-titulo {
+  .badge-soft {
+    background: #fff0f5;
     color: #d94d73;
-    font-weight: 600;
-    font-size: 18px;
-    margin-bottom: 8px;
+    border: 1px solid #ffd6e2;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 700;
   }
 
-  /* Mensaje de la notificación */
-  .notification-mensaje {
-    color: #555;
-    margin-bottom: 12px;
-    line-height: 1.5;
+  .form-panel {
+    background: #fff9fc;
+    border: 1px solid #ffd6e2;
+    border-radius: 16px;
+    padding: 24px;
   }
 
-  /* Fecha y estado de la notificación */
-  .notification-fecha {
-    color: #999;
-    font-size: 12px;
-  }
-
-  /* Botones de acción - flexbox */
-  .notification-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  /* Botón principal - color rosa */
   .btn-pink {
     background: #FF80A2;
-    border: none;
-    color: #fff;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-    border: none;
-    cursor: pointer;
+    border-color: #FF80A2;
+    color: white;
+    border-radius: 10px;
+    font-weight: 700;
   }
 
   .btn-pink:hover {
     background: #ef6f92;
-    color: #fff;
+    border-color: #ef6f92;
+    color: white;
   }
 
-  /* Botón outline - para marcar leído */
   .btn-outline-pink {
-    background: white;
-    border: 1px solid #FF80A2;
     color: #FF80A2;
+    border-color: #FF80A2;
+    border-radius: 10px;
+    font-weight: 700;
   }
 
   .btn-outline-pink:hover {
     background: #FF80A2;
     color: white;
   }
-
-  /* Botón eliminar - color más intenso */
-  .btn-danger-pink {
-    background: #ff6b9d;
-  }
-
-  .btn-danger-pink:hover {
-    background: #ff4d8a;
-  }
-
-  /* Estado vacío - sin notificaciones */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: #999;
-  }
-
-  .empty-state i {
-    font-size: 48px;
-    color: #d94d73;
-    margin-bottom: 15px;
-  }
 </style>
 
-<div class="page-wrap">
-  <div class="panel">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1 class="panel-title h3 mb-0">🔔 Notificaciones</h1>
-      <a href="{% url 'crear_notificacion' %}" class="btn-pink">
-        <i class="fas fa-plus"></i> Nueva notificación
-      </a>
+<div class="notificaciones-wrap">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="notificaciones-card mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+      <div>
+        <h1 class="notificaciones-title h3 mb-1">Modulo de Notificaciones</h1>
+        <p class="text-muted mb-0">
+          {% if role == 'admin' %}Panel administrativo con CRUD completo.{% else %}Bandeja de notificaciones del usuario.{% endif %}
+        </p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'home' %}" class="btn btn-outline-pink">Volver al inicio</a>
+      </div>
     </div>
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    <div class="row g-3 mt-2">
+      <div class="col-md-4">
+        <div class="summary-card">
+          <div class="summary-number">{{ total|default:0 }}</div>
+          <div class="text-muted">Total</div>
         </div>
-      {% endfor %}
-    {% endif %}
-
-    {% if notificaciones %}
-      {% for notificacion in notificaciones %}
-        <div class="notification-card {% if notificacion.leido %}leido{% endif %}">
-          <h5 class="notification-titulo">{{ notificacion.titulo }}</h5>
-          <p class="notification-mensaje">{{ notificacion.mensaje }}</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="notification-fecha">
-              <i class="fas fa-clock"></i> {{ notificacion.fecha_creacion|date:"d/m/Y H:i" }}
-              {% if notificacion.leido %}
-                <span class="badge bg-secondary ms-2">Leído</span>
-              {% else %}
-                <span class="badge bg-primary ms-2">Nuevo</span>
-              {% endif %}
-            </span>
-            <div class="notification-actions">
-              {% if not notificacion.leido %}
-                <a href="{% url 'marcar_leido' notificacion.id %}" class="btn btn-sm btn-outline-pink">
-                  <i class="fas fa-check"></i> Marcar leído
-                </a>
-              {% endif %}
-              <a href="{% url 'editar_notificacion' notificacion.id %}" class="btn btn-sm btn-pink">
-                <i class="fas fa-edit"></i> Editar
-              </a>
-              <a href="{% url 'eliminar_notificacion' notificacion.id %}" class="btn btn-sm btn-pink btn-danger-pink" onclick="return confirm('¿Desea eliminar esta notificación?');">
-                <i class="fas fa-trash"></i> Eliminar
-              </a>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-    {% else %}
-      <div class="empty-state">
-        <i class="fas fa-bell-slash"></i>
-        <p class="mb-0">No tienes notificaciones registradas.</p>
       </div>
-    {% endif %}
-
-    <div class="text-center mt-4">
-      <a href="{% url 'home' %}" class="btn-pink">
-        <i class="fas fa-arrow-left"></i> Volver al inicio
-      </a>
+      <div class="col-md-4">
+        <div class="summary-card">
+          <div class="summary-number">{{ no_leidas|default:0 }}</div>
+          <div class="text-muted">No leidas</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="summary-card">
+          <div class="summary-number">{{ role|default:'usuario' }}</div>
+          <div class="text-muted">Rol activo</div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="notificaciones-card mb-4">
+    <div class="spa-nav d-flex flex-wrap gap-2 mb-3">
+      <button type="button" class="btn btn-outline-pink" data-spa-target="spa-lista">Lista</button>
+      {% if role == 'admin' %}
+        <a href="{% url 'notificacion_crear' %}" class="btn btn-outline-pink" data-spa-link="spa-crear">Crear</a>
+      {% endif %}
+      {% if role == 'usuario' and no_leidas > 0 %}
+        <form method="POST" action="{% url 'notificaciones_marcar_todas_leidas' %}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-pink">Marcar todas como leidas</button>
+        </form>
+      {% endif %}
+    </div>
+
+    <section id="spa-lista" data-spa-section>
+      {% if role == 'admin' %}
+        <form method="GET" class="row g-2 mb-4">
+          <div class="col-md-4">
+            <input type="text" name="busqueda" class="form-control" placeholder="Buscar por titulo" value="{{ busqueda|default:'' }}">
+          </div>
+          <div class="col-md-3">
+            <select name="tipo" class="form-control">
+              <option value="">Todos los tipos</option>
+              {% for value, label in tipos %}
+                <option value="{{ value }}" {% if tipo == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select name="estado" class="form-control">
+              <option value="">Todos los estados</option>
+              <option value="no_leidas" {% if estado == 'no_leidas' %}selected{% endif %}>No leidas</option>
+              <option value="leidas" {% if estado == 'leidas' %}selected{% endif %}>Leidas</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-pink">Filtrar</button>
+          </div>
+        </form>
+      {% endif %}
+
+      {% if page.object_list %}
+        <div class="row g-3">
+          {% for notificacion in page.object_list %}
+            <div class="col-md-6 col-lg-4">
+              <div class="notification-card {% if notificacion.leida %}read{% endif %}">
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                  <span class="badge-soft">{{ notificacion.get_tipo_display }}</span>
+                  <span class="badge {% if notificacion.leida %}bg-secondary{% else %}bg-danger{% endif %}">
+                    {% if notificacion.leida %}Leida{% else %}No leida{% endif %}
+                  </span>
+                </div>
+                <h3 class="h5 fw-bold mb-2">{{ notificacion.titulo }}</h3>
+                <p class="text-muted small mb-2">
+                  Destino: {% if notificacion.es_global %}Todos los usuarios{% else %}{{ notificacion.receptor.username }}{% endif %}
+                </p>
+                <p class="mb-3">{{ notificacion.mensaje|truncatechars:120 }}</p>
+                <div class="d-flex flex-wrap gap-2">
+                  <a href="{% url 'notificacion_detalle' notificacion.id %}" class="btn btn-sm btn-outline-pink">Ver</a>
+                  {% if role == 'usuario' and not notificacion.leida %}
+                    <form method="POST" action="{% url 'notificacion_marcar_leida' notificacion.id %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-pink">Marcar leida</button>
+                    </form>
+                  {% endif %}
+                  {% if role == 'admin' %}
+                    <a href="{% url 'notificacion_editar' notificacion.id %}" class="btn btn-sm btn-outline-pink">Editar</a>
+                    <form method="POST" action="{% url 'notificacion_eliminar' notificacion.id %}" class="d-inline" onsubmit="return confirm('Desea eliminar esta notificacion?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        {% if page.has_other_pages %}
+          <nav aria-label="Paginacion" class="mt-4">
+            <ul class="pagination justify-content-center">
+              {% if page.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}">Anterior</a></li>
+              {% endif %}
+              {% for number in page.paginator.page_range %}
+                {% if number == page.number %}
+                  <li class="page-item active"><span class="page-link">{{ number }}</span></li>
+                {% elif number > page.number|add:'-3' and number < page.number|add:'3' %}
+                  <li class="page-item"><a class="page-link" href="?page={{ number }}">{{ number }}</a></li>
+                {% endif %}
+              {% endfor %}
+              {% if page.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}">Siguiente</a></li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+      {% else %}
+        <div class="alert alert-info mb-0">No hay notificaciones para mostrar.</div>
+      {% endif %}
+    </section>
+
+    {% if form %}
+      <section id="spa-crear" data-spa-section class="d-none">
+        <div class="form-panel">
+          <h2 class="h4 notificaciones-title mb-3">
+            {% if notificacion %}Editar notificacion{% else %}Crear notificacion{% endif %}
+          </h2>
+          <form method="POST">
+            {% csrf_token %}
+            {% if form.errors %}
+              <div class="alert alert-danger">Revise los campos marcados.</div>
+            {% endif %}
+            <div class="row g-3">
+              {% for field in form %}
+                <div class="col-md-6">
+                  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {{ field }}
+                  {% for error in field.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+            </div>
+            <div class="d-flex gap-2 mt-4">
+              <button type="submit" class="btn btn-pink">Guardar</button>
+              {% if role == 'admin' %}
+                <a href="{% url 'notificaciones_admin' %}" class="btn btn-outline-pink">Cancelar</a>
+              {% else %}
+                <a href="{% url 'notificaciones_usuario' %}" class="btn btn-outline-pink">Cancelar</a>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+      </section>
+    {% endif %}
+
+    {% if notificacion %}
+      <section id="spa-detalle" data-spa-section class="d-none">
+        <div class="notification-card mb-3">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+            <span class="badge-soft">{{ notificacion.get_tipo_display }}</span>
+            <span class="badge {% if notificacion.leida %}bg-secondary{% else %}bg-danger{% endif %}">
+              {% if notificacion.leida %}Leida{% else %}No leida{% endif %}
+            </span>
+          </div>
+          <h2 class="h4 notificaciones-title mb-3">{{ notificacion.titulo }}</h2>
+          <p>{{ notificacion.mensaje|linebreaksbr }}</p>
+          <div class="row g-3 mt-3 text-muted small">
+            <div class="col-md-4">
+              <strong>Destino:</strong>
+              {% if notificacion.es_global %}
+                Todos los usuarios
+              {% else %}
+                {{ notificacion.receptor.username }}
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              <strong>Creador:</strong>
+              {% if notificacion.creador %}{{ notificacion.creador.username }}{% else %}Sistema{% endif %}
+            </div>
+            <div class="col-md-4">
+              <strong>Creada:</strong>
+              {{ notificacion.created_at|date:"d/m/Y H:i" }}
+            </div>
+            {% if notificacion.leida_en %}
+              <div class="col-md-4">
+                <strong>Leida:</strong>
+                {{ notificacion.leida_en|date:"d/m/Y H:i" }}
+              </div>
+            {% endif %}
+          </div>
+          <div class="d-flex flex-wrap gap-2 mt-4">
+            <a href="{% url 'notificaciones' %}" class="btn btn-outline-pink">Volver a la lista</a>
+            {% if role == 'usuario' and not notificacion.leida %}
+              <form method="POST" action="{% url 'notificacion_marcar_leida' notificacion.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-pink">Marcar como leida</button>
+              </form>
+            {% endif %}
+            {% if role == 'admin' %}
+              <a href="{% url 'notificacion_editar' notificacion.id %}" class="btn btn-outline-pink">Editar</a>
+              <form method="POST" action="{% url 'notificacion_eliminar' notificacion.id %}" class="d-inline" onsubmit="return confirm('Desea eliminar esta notificacion?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger">Eliminar</button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      </section>
+    {% endif %}
+  </div>
 </div>
+
+<script>
+  function showSpaSection(sectionId) {
+    document.querySelectorAll('[data-spa-section]').forEach(function(section) {
+      section.classList.add('d-none');
+    });
+    document.querySelectorAll('[data-spa-target], [data-spa-link]').forEach(function(element) {
+      element.classList.remove('active');
+    });
+    const target = document.getElementById(sectionId);
+    if (target) {
+      target.classList.remove('d-none');
+    }
+    const active = document.querySelector('[data-spa-target="' + sectionId + '"]');
+    if (active) {
+      active.classList.add('active');
+    }
+  }
+
+  document.querySelectorAll('[data-spa-target]').forEach(function(button) {
+    button.addEventListener('click', function() {
+      showSpaSection(button.getAttribute('data-spa-target'));
+    });
+  });
+
+  document.querySelectorAll('[data-spa-link]').forEach(function(link) {
+    link.addEventListener('click', function() {
+      showSpaSection(link.getAttribute('data-spa-link'));
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    showSpaSection('{% if notificacion %}spa-detalle{% elif form %}spa-crear{% else %}spa-lista{% endif %}');
+  });
+</script>
 {% endblock %}

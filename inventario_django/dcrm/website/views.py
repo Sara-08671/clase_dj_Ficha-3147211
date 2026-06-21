@@ -1,4 +1,5 @@
 from functools import wraps
+import re
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -10,6 +11,10 @@ from django.utils import timezone
 
 from .forms import RegistroForm, AddRecordForm, NotificacionForm
 from .models import Record, Notificacion
+
+
+IDENTIFIER_RE = r'^[A-Za-z0-9_.@-]{3,150}$'
+PASSWORD_RE = r'^[A-Za-z0-9@_.\-]{1,128}$'
 
 
 
@@ -88,57 +93,11 @@ def home(request):
 
 
 
-    # LOGIN DESDE HOME
     if request.method == 'POST':
+        messages.error(request, 'Inicia sesion desde el formulario oficial de login.')
+        return redirect('login')
 
-
-        username = request.POST.get('username')
-
-        password = request.POST.get('password')
-
-
-
-        user = authenticate(
-            request,
-            username=username,
-            password=password
-        )
-
-
-
-        if user is not None:
-
-
-            login(
-                request,
-                user
-            )
-
-
-            messages.success(
-                request,
-                f'Hola {user.username}, ingreso exitoso.'
-            )
-
-
-            return redirect('home')
-
-
-
-        messages.error(
-            request,
-            'Usuario o contraseña incorrectos.'
-        )
-
-
-        return redirect('home')
-
-
-
-    return render(
-        request,
-        'home.html'
-    )
+    return redirect('login')
 
 
 
@@ -202,75 +161,41 @@ def register_user(request):
 # LOGIN
 def login_user(request):
 
-
     if request.method == 'POST':
 
+        identificador = request.POST.get('email') or request.POST.get('username') or ''
+        password = request.POST.get('password') or ''
 
-        email = request.POST.get('email')
+        if not re.match(IDENTIFIER_RE, identificador.strip()) or not re.match(PASSWORD_RE, password):
+            messages.error(request, 'El usuario/correo y la contrasena contienen caracteres no permitidos.')
+            return redirect('login')
 
-        password = request.POST.get('password')
-
-
+        identificador = identificador.strip()
 
         try:
-
-
-            user_obj = User.objects.get(
-                email=email
-            )
-
-
-            user = authenticate(
-                request,
-                username=user_obj.username,
-                password=password
-            )
-
-
-
+            if '@' in identificador:
+                user_obj = User.objects.get(email__iexact=identificador)
+            else:
+                user_obj = User.objects.get(username=identificador)
         except User.DoesNotExist:
+            messages.error(request, 'Credenciales invalidas.')
+            return redirect('login')
 
-
-            user = None
-
-
-
-
-
-        if user is not None:
-
-
-            login(
-                request,
-                user
-            )
-
-
-            messages.success(
-                request,
-                f'Hola {user.username}, ingreso exitoso.'
-            )
-
-
-            return redirect('home')
-
-
-
-
-        messages.error(
+        user = authenticate(
             request,
-            'Credenciales invalidas.'
+            username=user_obj.username,
+            password=password
         )
 
+        if user is not None and user.is_active:
+            login(request, user)
+            messages.success(request, f'Hola {user.username}, ingreso exitoso.')
+            return redirect('home')
 
+        messages.error(request, 'Credenciales invalidas.')
         return redirect('login')
 
-
-
-    return render(
-        request,
-        'login.html'
-    )
+    return render(request, 'login.html')
 
 
 
@@ -754,6 +679,7 @@ def notificacion_detalle(request, pk):
     })
 
 
+@require_POST
 @login_required(login_url='login')
 def notificacion_marcar_leida(request, pk):
     notificacion = get_object_or_404(Notificacion, pk=pk)
@@ -766,6 +692,7 @@ def notificacion_marcar_leida(request, pk):
     return redirect('notificaciones')
 
 
+@require_POST
 @login_required(login_url='login')
 def notificaciones_marcar_todas_leidas(request):
     queryset = Notificacion.objects.para_usuario(request.user).filter(leida=False)

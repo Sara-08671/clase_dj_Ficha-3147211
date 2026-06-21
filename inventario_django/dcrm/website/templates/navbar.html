@@ -87,7 +87,7 @@ position:relative;
 
 <i class="fas fa-bell"></i>
 Notificaciones
-{% if user.is_authenticated and user.notificaciones.filter(leido=False).exists %}
+{% if user.is_authenticated and user.notificaciones.count %}
 <span style="
 position:absolute;
 top:-8px;
@@ -98,7 +98,7 @@ border-radius:50%;
 padding:2px 6px;
 font-size:11px;
 font-weight:bold;
-">{{ user.notificaciones.filter(leido=False).count }}</span>
+">{{ user.notificaciones.count }}</span>
 {% endif %}
 
 </a>
