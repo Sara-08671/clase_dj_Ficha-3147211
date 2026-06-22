@@ -125,6 +125,9 @@ def home(request):
             page_number = request.GET.get('page')
             records = paginator.get_page(page_number)
 
+        # Mostrar notificaciones en el dashboard según rol
+        notificaciones = Notificacion.objects.para_usuario(request.user).order_by('-created_at')[:5]
+
         return render(
             request,
             'home.html',
@@ -134,6 +137,7 @@ def home(request):
                 'can_manage_records': can_manage_records,
                 'user_role': get_user_role(request.user),
                 'role_label': get_role_label(get_user_role(request.user)),
+                'notificaciones': notificaciones,
             }
         )
 
@@ -342,14 +346,16 @@ def delete_record(request, pk):
 
 @login_required(login_url='login')
 def notificaciones(request):
-    if user_has_management_role(request.user):
+    if user_has_admin_role(request.user):
         return notificaciones_admin(request)
+    if user_has_organizer_role(request.user):
+        return notificaciones_organizador(request)
     return notificaciones_usuario(request)
 
 
 @admin_required
 def notificaciones_admin(request):
-    # Vista de notificaciones para Admin y Organizador con CRUD.
+    # Vista de notificaciones para Admin con CRUD: crea, filtra y lista.
     busqueda = request.GET.get('buscar', '').strip()
     estado = request.GET.get('estado', '').strip()
 
@@ -363,12 +369,43 @@ def notificaciones_admin(request):
     elif estado == 'no_leidas':
         queryset = queryset.filter(leida=False)
 
+    # Procesa formulario POST para crear notificacion
+    if request.method == 'POST':
+        form = NotificacionForm(request.POST, created_by=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Notificacion creada correctamente.')
+            return redirect('notificaciones')
+        messages.error(request, 'Revise los datos de la notificacion.')
+    else:
+        form = NotificacionForm(created_by=request.user)
+
     return render(request, 'notificaciones_admin.html', {
         'notificaciones': queryset,
         'users': User.objects.filter(is_active=True),
         'busqueda': busqueda,
         'estado': estado,
         'role_label': get_role_label(get_user_role(request.user)),
+        'form': form,
+        'tipos': Notificacion.TIPO_CHOICES,
+    })
+
+
+@login_required(login_url='login')
+def notificaciones_organizador(request):
+    # Vista de notificaciones para Organizador con filtros y marcar leída.
+    filtro = request.GET.get('filtro', 'todas')
+    queryset = Notificacion.objects.para_usuario(request.user)
+
+    if filtro == 'no_leidas':
+        queryset = queryset.filter(leida=False)
+    elif filtro == 'leidas':
+        queryset = queryset.filter(leida=True)
+
+    return render(request, 'notificaciones_organizador.html', {
+        'notificaciones': queryset,
+        'filtro': filtro,
+        'role_label': get_role_label(ROLE_ORGANIZADOR),
     })
 
 
@@ -386,12 +423,14 @@ def notificaciones_usuario(request):
     return render(request, 'notificaciones_residente.html', {
         'notificaciones': queryset,
         'filtro': filtro,
-        'role_label': get_role_label(get_user_role(request.user)),
+        'role_label': get_role_label(ROLE_RESIDENTE),
+        'can_manage_notifications': False,
     })
 
 
 @admin_required
 def notificacion_crear(request):
+    # Muestra formulario para crear notificaciones; solo Admin/Organizador disponen de esta vista.
     if request.method == 'POST':
         form = NotificacionForm(request.POST, created_by=request.user)
         if form.is_valid():
@@ -415,6 +454,7 @@ def notificacion_crear(request):
 
 @admin_required
 def notificacion_editar(request, pk):
+    # Permite editar una notificacion existente; protegido por admin_required.
     notificacion = get_object_or_404(Notificacion, pk=pk)
 
     if request.method == 'POST':
@@ -442,6 +482,7 @@ def notificacion_editar(request, pk):
 @require_POST
 @admin_required
 def notificacion_eliminar(request, pk):
+    # Elimina una notificacion; requiere POST y rol de gestion.
     notificacion = get_object_or_404(Notificacion, pk=pk)
     notificacion.delete()
     messages.success(request, 'Notificacion eliminada correctamente.')

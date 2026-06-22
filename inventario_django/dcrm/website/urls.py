@@ -17,6 +17,7 @@ urlpatterns = [
     path('add_record/', views.add_record, name='add_record'),
     path('notificaciones/', views.notificaciones, name='notificaciones'),
     path('notificaciones/admin/', views.notificaciones_admin, name='notificaciones_admin'),
+    path('notificaciones/organizador/', views.notificaciones_organizador, name='notificaciones_organizador'),
     path('notificaciones/usuario/', views.notificaciones_usuario, name='notificaciones_usuario'),
     path('notificaciones/crear/', views.notificacion_crear, name='notificacion_crear'),
     path('notificaciones/<int:pk>/editar/', views.notificacion_editar, name='notificacion_editar'),

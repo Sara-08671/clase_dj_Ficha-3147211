@@ -1,32 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
-  :root { --primary: #FF80A2; --secondary: #d94d73; --dark: #2C3E50; --muted: #7F8C8D; --radius: 8px; }
+  :root { --primary: #FF80A2; --secondary: #d94d73; --success: #28a745; --danger: #e74c3c; --dark: #2C3E50; --muted: #7F8C8D; --radius: 12px; }
   body { background: linear-gradient(135deg, #ffcde6 0%, #ffb6c1 100%); font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
   .page-wrap { max-width: 1180px; margin: 0 auto; padding: 28px 16px; }
-  .panel { background: #fff9fc; border-radius: 16px; padding: 30px; box-shadow: 0 8px 30px rgba(255, 128, 162, 0.15); }
+  .panel { background: #fff; border-radius: 18px; padding: 30px; box-shadow: 0 8px 30px rgba(255, 128, 162, 0.12); margin-bottom: 20px; }
   .panel-title { color: var(--secondary); font-weight: 700; }
-  .header-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
-  .btn-pink { background: var(--primary); color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; border: none; font-weight: 600; cursor: pointer; }
-  .btn-pink:hover { background: #ef6f92; color: white; }
-  .notification-card { border: 1px solid #ffd6e2; border-left: 5px solid var(--primary); border-radius: 16px; padding: 18px; background: #fff; margin-bottom: 15px; }
-  .notification-card.no-leida { border-left-color: #e74c3c; background: #fff5f5; }
-  .badge-no-leida { background: #e74c3c; color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
-  .btn-marcar { background: var(--primary); color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; border: none; cursor: pointer; }
-  .btn-desmarcar { background: #95a5a6; color: white; padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; border: none; cursor: pointer; }
-  .my-pagination { text-align: center; margin: 30px 0; }
-  .my-pagination ul { display: flex; justify-content: center; gap: 8px; padding: 0; list-style: none; }
-  .my-pagination a, .my-pagination span { min-width: 42px; height: 38px; padding: 0 12px; display: flex; align-items: center; justify-content: center; border-radius: 10px; text-decoration: none; font-weight: 600; }
-  .my-pagination a { background: white; color: var(--primary); border: 1px solid var(--primary); }
-  .my-pagination a:hover { background: var(--primary); color: white; }
-  .my-pagination .active { background: var(--primary); color: white; }
-  .pagination-summary { margin-top: 12px; color: var(--secondary); font-weight: 600; }
+  .header-actions { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
+  .btn-pink { background: var(--primary); color: white; padding: 10px 20px; border-radius: var(--radius); text-decoration: none; border: none; font-weight: 600; cursor: pointer; }
+  .btn-pink:hover { background: var(--secondary); color: white; }
+  .notification-card { border: 1px solid #ffd6e2; border-left: 5px solid var(--primary); border-radius: var(--radius); padding: 18px; background: #fff; margin-bottom: 15px; transition: transform 0.2s, box-shadow 0.2s; }
+  .notification-card.no-leida { border-left-color: var(--danger); background: #fff5f5; }
+  .notification-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  .badge-no-leida { background: var(--danger); color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+  .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px 16px; border-radius: var(--radius); margin-bottom: 15px; }
+  .alert-danger { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 12px 16px; border-radius: var(--radius); margin-bottom: 15px; }
+  .alert-info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 12px 16px; border-radius: var(--radius); margin-bottom: 15px; }
 </style>
 
 <div class="page-wrap">
   {% if messages %}
     {% for message in messages %}
-      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+      <div class="alert-{{ message.tags }} alert-dismissible fade show" role="alert">
         {{ message }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
       </div>
@@ -35,44 +30,28 @@
 
   {% if user.is_authenticated %}
     <div class="panel">
-      <!-- Módulo de notificaciones: contenido SPA según rol -->
-      <h1 class="panel-title h3 mb-1">Módulo de Notificaciones</h1>
-      <p class="text-muted mb-0">Rol activo: {{ role_label }}.</p>
+      <h1 class="panel-title h3 mb-2">🔔 Notificaciones Recientes</h1>
+      <p class="text-muted mb-0">Usuario: {{ user.username }} — Rol: {{ role_label }}</p>
 
-      <!-- Opciones según rol -->
       <div class="header-actions">
         {% if can_manage_records %}
-          <a href="{% url 'add_record' %}" class="btn-pink">+ Agregar usuario</a>
+          <a href="{% url 'add_record' %}" class="btn-pink">＋ Agregar usuario</a>
         {% endif %}
-        <a href="{% url 'notificaciones' %}" class="btn-pink">Ver bandeja completa</a>
+        <a href="{% url 'notificaciones' %}" class="btn-pink">📋 Ver bandeja completa</a>
       </div>
 
       {% if notificaciones %}
-        <div class="notificaciones-container">
-          {% for n in notificaciones %}
-            <div class="notification-card {% if not n.leida %}no-leida{% endif %}">
-              <strong>{{ n.get_tipo_display }}
-                {% if not n.leida %}<span class="badge-no-leida">NUEVO</span>{% endif %}
-              </strong>
-              <p>{{ n.mensaje|truncatechars:120 }}</p>
-              <span style="font-size: 0.8rem; color: #7d8a88;">{{ n.created_at|date:"d/m/Y H:i" }}</span>
-            </div>
-          {% endfor %}
-        </div>
-        {% if notificaciones.has_other_pages %}
-          <nav class="my-pagination">
-            <ul>
-              {% if notificaciones.has_previous %}
-                <li><a href="?page={{ notificaciones.previous_page_number }}">Anterior</a></li>
-              {% endif %}
-              {% if notificaciones.has_next %}
-                <li><a href="?page={{ notificaciones.next_page_number }}">Siguiente</a></li>
-              {% endif %}
-            </ul>
-          </nav>
-        {% endif %}
+        {% for n in notificaciones %}
+          <div class="notification-card {% if not n.leida %}no-leida{% endif %}">
+            <strong>{{ n.get_tipo_display }}
+              {% if not n.leida %}<span class="badge-no-leida">NUEVO</span>{% endif %}
+            </strong>
+            <p class="mb-1">{{ n.mensaje|truncatechars:120 }}</p>
+            <small style="color: var(--muted);">{{ n.created_at|date:"d/m/Y H:i" }}</small>
+          </div>
+        {% endfor %}
       {% else %}
-        <div class="alert alert-info">No hay notificaciones por ahora.</div>
+        <div class="alert-info">No hay notificaciones por ahora.</div>
       {% endif %}
     </div>
 
@@ -80,7 +59,7 @@
     <div class="row justify-content-center">
       <div class="col-md-7 col-lg-5">
         <div class="panel">
-          <h1 class="panel-title h3 text-center mb-4">Iniciar sesión</h1>
+          <h1 class="panel-title h3 text-center mb-4">🔐 Iniciar Sesión</h1>
           <form method="POST" action="{% url 'home' %}">
             {% csrf_token %}
             <div class="mb-3">
@@ -91,11 +70,11 @@
               <label for="password" class="form-label">Contraseña</label>
               <input type="password" id="password" class="form-control" name="password" placeholder="Contraseña" required>
             </div>
-            <button type="submit" class="btn btn-pink w-100">Ingresar</button>
+            <button type="submit" class="btn-pink w-100">Ingresar</button>
           </form>
           <div class="text-center mt-3">
             <span class="text-muted">¿No tienes cuenta?</span>
-            <a href="{% url 'register' %}">Crear cuenta</a>
+            <a href="{% url 'register' %}" class="fw-semibold">Crear cuenta</a>
           </div>
         </div>
       </div>
