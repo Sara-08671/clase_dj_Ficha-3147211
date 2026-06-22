@@ -1,339 +1,61 @@
 {% extends 'base.html' %}
-
 {% block content %}
-
 <style>
-
-
-body{
-
-    background:#FFB6C1;
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-}
-
-
-/* CONTENEDOR */
-
-.register-wrap{
-
-    max-width:620px;
-    margin:40px auto;
-    padding:20px;
-
-}
-
-
-
-/* TARJETA */
-
-.register-panel{
-
-    background:white;
-
-    padding:35px;
-
-    border-radius:18px;
-
-    box-shadow:0 8px 20px rgba(0,0,0,.15);
-
-}
-
-
-
-
-/* TITULO */
-
-.register-title{
-
-    color:#d94d73;
-
-    font-size:32px;
-
-    font-weight:700;
-
-    margin-bottom:25px;
-
-}
-
-
-
-/* GRID DOS COLUMNAS */
-
-.form-grid{
-
-
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-    gap:18px;
-
-
-}
-
-
-
-/* CAMPOS */
-
-.campo{
-
-    width:100%;
-
-}
-
-
-
-.campo label{
-
-
-    display:block;
-
-    font-weight:600;
-
-    color:#444;
-
-    margin-bottom:6px;
-
-
-}
-
-
-
-/* INPUTS */
-
-.campo input,
-.campo select{
-
-
-    width:100%;
-
-    height:40px;
-
-    padding:8px 12px;
-
-    box-sizing:border-box;
-
-    border-radius:10px;
-
-    border:1px solid #ddd;
-
-    font-size:14px;
-
-
-}
-
-
-
-.campo input:focus,
-.campo select:focus{
-
-
-    outline:none;
-
-    border-color:#FF80A2;
-
-
-}
-
-
-
-/* BOTON */
-
-.btn-pink{
-
-
-    width:100%;
-
-    height:42px;
-
-    margin-top:25px;
-
-    background:#FF80A2;
-
-    border:none;
-
-    color:white;
-
-    border-radius:10px;
-
-    font-size:16px;
-
-    cursor:pointer;
-
-
-}
-
-
-
-.btn-pink:hover{
-
-
-    background:#ef6f92;
-
-
-}
-
-
-
-a{
-
-    color:#9b3db7;
-
-}
-
-
-
-
-/* PARA CELULAR */
-
-@media(max-width:600px){
-
-
-.form-grid{
-
-    grid-template-columns:1fr;
-
-}
-
-
-}
-
-
-
+  :root { --primary: #FF80A2; --secondary: #d94d73; --success: #28a745; --danger: #dc3545; --info: #17a2b8; }
+  body { background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%); font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+  .register-wrap { max-width: 620px; margin: 40px auto; padding: 20px; }
+  .register-panel { background: #fff; padding: 35px; border-radius: 18px; box-shadow: 0 8px 20px rgba(0,0,0,.15); }
+  .register-title { color: var(--primary); font-size: 32px; font-weight: 700; margin-bottom: 15px; text-align: center; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .campo label { font-weight: 600; color: #444; margin-bottom: 6px; display: block; }
+  .campo input, .campo select { width: 100%; height: 40px; padding: 8px 12px; border-radius: 10px; border: 1px solid #ddd; font-size: 14px; }
+  .campo input:focus, .campo select:focus { outline: none; border-color: var(--primary); }
+  .btn-pink { width: 100%; height: 42px; margin-top: 25px; background: var(--primary); border: none; color: white; border-radius: 10px; font-size: 16px; cursor: pointer; font-weight: 600; }
+  .btn-pink:hover { background: var(--secondary); }
+  .alert-info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+  .alert-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+  .alert-danger { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+  @media(max-width:600px){.form-grid{grid-template-columns:1fr;}}
 </style>
 
-
-
 <div class="register-wrap">
+  <div class="register-panel">
+    <h1 class="register-title">Crear Cuenta - Seleccione Rol</h1>
+    <p class="text-muted mb-0">El registro crea la cuenta con el rol elegido. Admin y Organizador pueden crear/gestionar usuarios.</p>
 
+    <!-- Mensaje de éxito (cuando se redirige con ?registro=ok) -->
+    {% if request.GET.registro == 'ok' %}
+      <div class="alert-success">
+        ¡Cuenta creada! Inicie sesión con sus credenciales.
+      </div>
+    {% endif %}
 
-<div class="register-panel">
+    <form method="POST" action="{% url 'register' %}">
+      {% csrf_token %}
 
+      {% if form.non_field_errors %}
+        <div class="alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
 
+      <div class="form-grid">
+        {% for field in form %}
+          <div class="campo">
+            <label{% if field.field.required %} style="color: var(--secondary);"{% endif %}>{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
 
-<h1 class="register-title text-center">
+      <button type="submit" class="btn-pink">Crear Cuenta</button>
+    </form>
 
-Crear cuenta
-
-</h1>
-
-<div class="alert alert-info mb-4">
-El registro publico crea usuarios con rol Residente. Para crear Organizadores o Administradores, ingrese como Administrador/Organizador y use Agregar usuario.
+    <div class="text-center mt-4">
+      <span class="text-muted">¿Ya tiene cuenta?</span>
+      <a href="{% url 'login' %}" class="fw-semibold" style="color: var(--primary);">Iniciar sesión</a>
+    </div>
+  </div>
 </div>
-
-<form method="POST" action="{% url 'register' %}">
-
-
-{% csrf_token %}
-
-
-
-
-{% if form.errors %}
-
-<div class="alert alert-danger">
-
-Revise los datos ingresados.
-
-</div>
-
-{% endif %}
-
-
-
-
-<div class="form-grid">
-
-
-
-{% for field in form %}
-
-
-
-<div class="campo">
-
-
-<label>
-
-{{ field.label }}
-
-</label>
-
-
-
-{{ field.as_widget }}
-
-
-
-
-{% for error in field.errors %}
-
-<div class="text-danger small">
-
-{{error}}
-
-</div>
-
-{% endfor %}
-
-
-
-</div>
-
-
-
-{% endfor %}
-
-
-
-</div>
-
-
-
-
-
-<button type="submit" class="btn-pink">
-
-Registrar
-
-</button>
-
-
-
-
-</form>
-
-
-
-
-
-<div class="text-center mt-4">
-
-
-<span>
-
-Ya tienes cuenta?
-
-</span>
-
-
-<a href="{% url 'login' %}">
-
-Iniciar sesión
-
-</a>
-
-
-</div>
-
-
-
-</div>
-
-
-</div>
-
-
-
 {% endblock %}

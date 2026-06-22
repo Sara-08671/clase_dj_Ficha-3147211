@@ -147,18 +147,19 @@ def home(request):
 # REGISTRO DE USUARIO
 
 def register_user(request):
+    # Registro público permite seleccionar rol (Admin/Organizador/Residente).
     if request.user.is_authenticated:
         return redirect('home')
 
     if request.method == 'POST':
-        form = RegistroForm(request.POST)
+        form = RegistroForm(request.POST, role_selection=True)
 
         if form.is_valid():
             form.save()
             messages.success(request, 'Cuenta creada correctamente. Ahora inicia sesion.')
             return redirect('login')
     else:
-        form = RegistroForm()
+        form = RegistroForm(role_selection=True)
 
     return render(request, 'register.html', {'form': form})
 
@@ -348,56 +349,45 @@ def notificaciones(request):
 
 @admin_required
 def notificaciones_admin(request):
-    busqueda = request.GET.get('busqueda', '').strip()
-    tipo = request.GET.get('tipo', '').strip()
+    # Vista de notificaciones para Admin y Organizador con CRUD.
+    busqueda = request.GET.get('buscar', '').strip()
     estado = request.GET.get('estado', '').strip()
 
-    queryset = Notificacion.objects.select_related('receptor', 'creador').all()
+    queryset = Notificacion.objects.select_related('receptor').all()
 
     if busqueda:
         queryset = queryset.filter(titulo__icontains=busqueda)
-
-    if tipo:
-        queryset = queryset.filter(tipo=tipo)
 
     if estado == 'leidas':
         queryset = queryset.filter(leida=True)
     elif estado == 'no_leidas':
         queryset = queryset.filter(leida=False)
 
-    page = paginate_queryset(request, queryset)
-    role = get_user_role(request.user)
-
-    context = {
-        'role': role,
-        'role_label': get_role_label(role),
-        'can_manage_notifications': True,
-        'page': page,
+    return render(request, 'notificaciones_admin.html', {
+        'notificaciones': queryset,
+        'users': User.objects.filter(is_active=True),
         'busqueda': busqueda,
-        'tipo': tipo,
         'estado': estado,
-        'tipos': Notificacion.TIPO_CHOICES,
-        'total': Notificacion.objects.count(),
-        'no_leidas': Notificacion.objects.filter(leida=False).count(),
-    }
-    return render(request, 'notificaciones.html', context)
+        'role_label': get_role_label(get_user_role(request.user)),
+    })
 
 
 @login_required(login_url='login')
 def notificaciones_usuario(request):
-    queryset = Notificacion.objects.para_usuario(request.user).select_related('receptor', 'creador')
-    page = paginate_queryset(request, queryset)
-    role = get_user_role(request.user)
+    # Vista de notificaciones para Residente con filtros por estado.
+    filtro = request.GET.get('filtro', 'todas')
+    queryset = Notificacion.objects.para_usuario(request.user)
 
-    context = {
-        'role': role,
-        'role_label': get_role_label(role),
-        'can_manage_notifications': False,
-        'page': page,
-        'total': queryset.count(),
-        'no_leidas': queryset.filter(leida=False).count(),
-    }
-    return render(request, 'notificaciones.html', context)
+    if filtro == 'no_leidas':
+        queryset = queryset.filter(leida=False)
+    elif filtro == 'leidas':
+        queryset = queryset.filter(leida=True)
+
+    return render(request, 'notificaciones_residente.html', {
+        'notificaciones': queryset,
+        'filtro': filtro,
+        'role_label': get_role_label(get_user_role(request.user)),
+    })
 
 
 @admin_required

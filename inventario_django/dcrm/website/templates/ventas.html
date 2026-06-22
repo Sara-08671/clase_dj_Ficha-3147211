@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  body { background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; }
+  .page-wrap { max-width: 1180px; margin: 0 auto; padding: 28px 16px; }
+  .panel { background: #fff; border-radius: 16px; padding: 30px; box-shadow: 0 8px 30px rgba(255, 128, 162, 0.15); }
+  .panel-title { color: #d94d73; font-weight: 700; }
+  .card-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .item-card { background: #fff5fa; border: 1px solid #ffd6e2; border-left: 4px solid #FF80A2; border-radius: 12px; padding: 18px; }
+  .item-card h3 { color: #d94d73; margin-bottom: 8px; font-size: 18px; }
+  .item-card p { color: #555; margin-bottom: 0; font-size: 14px; }
+  .btn-pink { background: #FF80A2; border: none; color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; }
+  .btn-pink:hover { background: #ef6f92; color: white; }
+</style>
+<div class="page-wrap">
+  <div class="panel mb-4">
+    <h1 class="panel-title h3 mb-3">Módulo de Ventas</h1>
+    <p class="text-muted mb-0">Gestión de ventas del sistema (en desarrollo).</p>
+  </div>
+  <div class="panel">
+    <h2 class="h5 notificaciones-title mb-3">Ventas registradas</h2>
+    <div class="card-grid">
+      <div class="item-card"><h3>Venta Demo</h3><p>Cliente: Demo - Total: $0.00 - Fecha: --</p></div>
+    </div>
+    <a href="{% url 'home' %}" class="btn btn-pink mt-4">Volver al inicio</a>
+  </div>
+</div>
+{% endblock %}

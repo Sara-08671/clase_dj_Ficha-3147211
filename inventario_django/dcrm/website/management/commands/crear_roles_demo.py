@@ -56,39 +56,36 @@ class Command(BaseCommand):
         ]
 
         for datos in usuarios:
-            user, created = User.objects.get_or_create(username=datos['username'])
-            if created:
-                user.set_password(datos['password'])
-                user.email = datos['email']
-                user.first_name = datos['first_name']
-                user.last_name = datos['last_name']
-                user.is_staff = datos['is_staff']
-                user.is_superuser = datos['is_superuser']
-                user.is_active = True
-                user.save()
-                Record.objects.get_or_create(
-                    user=user,
-                    defaults={
-                        'first_name': datos['first_name'],
-                        'last_name': datos['last_name'],
-                        'email': datos['email'],
-                        'phone': datos['phone'],
-                        'Address': datos['Address'],
-                        'city': datos['city'],
-                        'state': datos['state'],
-                        'zipcode': datos['zipcode'],
-                    }
-                )
-                self.stdout.write(self.style.SUCCESS(f'Cuenta creada: {datos["username"]} / {datos["password"]}'))
-            else:
-                user.set_password(datos['password'])
-                user.email = datos['email']
-                user.first_name = datos['first_name']
-                user.last_name = datos['last_name']
-                user.is_staff = datos['is_staff']
-                user.is_superuser = datos['is_superuser']
-                user.is_active = True
-                user.save()
-                self.stdout.write(self.style.SUCCESS(f'Cuenta actualizada: {datos["username"]} / {datos["password"]}'))
+            user, created = User.objects.update_or_create(
+                username=datos['username'],
+                defaults={
+                    'email': datos['email'],
+                    'first_name': datos['first_name'],
+                    'last_name': datos['last_name'],
+                    'is_staff': datos['is_staff'],
+                    'is_superuser': datos['is_superuser'],
+                    'is_active': True,
+                }
+            )
+            user = User.objects.get(username=datos['username'])
+            user.set_password(datos['password'])
+            user.save()
+
+            Record.objects.update_or_create(
+                user=user,
+                defaults={
+                    'first_name': datos['first_name'],
+                    'last_name': datos['last_name'],
+                    'email': datos['email'],
+                    'phone': datos['phone'],
+                    'Address': datos['Address'],
+                    'city': datos['city'],
+                    'state': datos['state'],
+                    'zipcode': datos['zipcode'],
+                }
+            )
+
+            estado = 'creada' if created else 'actualizada'
+            self.stdout.write(self.style.SUCCESS(f'Cuenta {estado}: {datos["username"]} / {datos["password"]}'))
 
         self.stdout.write(self.style.SUCCESS('Listo. Ingrese con cualquiera de las cuentas demo para ver su rol.'))

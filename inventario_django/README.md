@@ -47,8 +47,11 @@ Después de ejecutar `crear_roles_demo`, use estas cuentas para demostrar los ro
 - django-validators>=0.0.1
 
 ## Arquitectura y modelado
-- Diagrama C4: `diagrams/c4_model.puml`
-- Diagrama UML de notificaciones: `diagrams/notificaciones_uml.puml`
+- C1 Contexto: `diagrams/c1_contexto.puml`
+- C2 Contenedores: `diagrams/c2_contenedores.puml`
+- C3 Componentes: `diagrams/c3_componentes.puml`
+- C4 Código: `diagrams/c4_codigo.puml`
+- UML de notificaciones: `diagrams/notificaciones_uml.puml`
 
 ## Patrones y prácticas documentadas
 - **ModelForm/Formularios basados en modelo**: `RegistroForm`, `AddRecordForm` y `NotificacionForm` reutilizan validación y renderizado desde modelos, aplicando DRY.

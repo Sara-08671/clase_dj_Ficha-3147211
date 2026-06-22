@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  :root { --primary: #FF80A2; --secondary: #d94d73; --success: #27ae60; --danger: #e74c3c; --dark: #2C3E50; --muted: #7F8C8D; --radius: 12px; }
+  body { background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%); font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+  .page-container { max-width: 1180px; margin: 0 auto; padding: 28px 20px; }
+  .panel { background: #fff; border-radius: 18px; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); margin-bottom: 20px; }
+  .panel-title { color: var(--primary); font-weight: 700; margin-bottom: 20px; }
+  .header-actions { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
+  .btn-pink { background: var(--primary); color: white; padding: 10px 20px; border-radius: var(--radius); text-decoration: none; border: none; font-weight: 600; cursor: pointer; }
+  .btn-pink:hover { background: var(--secondary); color: white; }
+  .card-form { background: #fff9fc; border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+  .card-form h3 { color: var(--secondary); margin-bottom: 20px; }
+  label { font-weight: 600; color: var(--dark); margin-top: 12px; display: block; }
+  .form-control { width: 100%; padding: 10px 12px; border-radius: var(--radius); border: 1px solid #ddd; margin-bottom: 12px; }
+  .search-input { width: 200px; padding: 8px 12px; border-radius: var(--radius); border: 1px solid #ddd; }
+  .filtros { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tabla { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .tabla th, .tabla td { border-bottom: 1px solid #eee; padding: 12px; text-align: left; }
+  .tabla th { background: var(--primary); color: white; }
+  .tabla tr:hover { background: #fff5fa; }
+  .badge { padding: 4px 10px; border-radius: var(--radius); font-size: 0.85rem; }
+  .bg-danger { background: var(--danger); }
+  .bg-secondary { background: #95a5a6; }
+</style>
+
+<div class="page-container">
+
+  <!-- Mensaje de exito tras envio -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert-{{ message.tags }} alert-dismissible" style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px 16px; border-radius: var(--radius); margin-bottom: 15px;">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="panel">
+    <h1 class="panel-title h3 mb-0">📢 Gestión de Notificaciones (Admin/Organizador)</h1>
+    <p class="text-muted mb-0">Cree y administre notificaciones para usuarios o globales.</p>
+  </div>
+
+  <!-- Formulario de envio -->
+  <div class="card-form mb-4">
+    <h3>➕ Enviar Notificación</h3>
+    <form method="POST">
+      {% csrf_token %}
+      <label>Destino</label>
+      <select name="receptor" class="form-control">
+        <option value="">-- Notificación global para todos --</option>
+        {% for u in users %}
+          <option value="{{ u.id }}">{{ u.username }}</option>
+        {% endfor %}
+      </select>
+      <label>Tipo</label>
+      <select name="tipo" class="form-control" required>
+        <option value="info">Informativa</option>
+        <option value="aviso">Aviso</option>
+        <option value="alerta">Alerta</option>
+        <option value="recordatorio">Recordatorio</option>
+      </select>
+      <label>Título</label>
+      <input type="text" name="titulo" class="form-control" required maxlength="80">
+      <label>Mensaje</label>
+      <textarea name="mensaje" rows="4" class="form-control" required style="resize: vertical;"></textarea>
+      <button type="submit" class="btn-pink mt-2">Enviar Notificación</button>
+    </form>
+  </div>
+
+  <!-- Filtros -->
+  <div class="header-actions">
+    <form method="GET" class="filtros">
+      <input type="text" name="buscar" placeholder="Buscar..." value="{{ busqueda|default:'' }}" class="search-input">
+      <select name="estado" class="form-control" style="width: 150px;">
+        <option value="">Todos</option>
+        <option value="no_leidas" {% if estado == 'no_leidas' %}selected{% endif %}>No leídas</option>
+        <option value="leidas" {% if estado == 'leidas' %}selected{% endif %}>Leídas</option>
+      </select>
+      <button type="submit" class="btn-pink">Filtrar</button>
+    </form>
+  </div>
+
+  <!-- Tabla de notificaciones -->
+  {% if notificaciones %}
+    <div class="panel">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Destino</th>
+            <th>Tipo</th>
+            <th>Título</th>
+            <th>Estado</th>
+            <th>Creado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for n in notificaciones %}
+            <tr>
+              <td>{% if n.es_global %}<strong>Todos</strong>{% else %}{{ n.receptor.username }}{% endif %}</td>
+              <td>{{ n.get_tipo_display }}</td>
+              <td>{{ n.titulo }}</td>
+              <td>
+                {% if n.leida %}
+                  <span class="badge bg-secondary">Leída</span>
+                {% else %}
+                  <span class="badge bg-danger">No leída</span>
+                {% endif %}
+              </td>
+              <td>{{ n.created_at|date:"d/m/Y H:i" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="alert alert-info" style="background: #d1ecf1; padding: 15px; border-radius: var(--radius);">No hay notificaciones.</div>
+  {% endif %}
+</div>
+{% endblock %}
