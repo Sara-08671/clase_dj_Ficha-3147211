@@ -60,19 +60,52 @@ Inicio
 
 
 {% if user.is_superuser or user.is_staff %}
-<a href="{% url 'add_record' %}"
-style="
-color:white;
-text-decoration:none;
-font-size:15px;
-display:flex;
-align-items:center;
-gap:6px;
-">
-
-+ Agregar usuario
-
-</a>
+    <a href="{% url 'notificaciones_organizador' %}"
+    style="
+    color:white;
+    text-decoration:none;
+    font-size:15px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    ">
+    Notificaciones
+    </a>
+    <a href="{% url 'perfil' %}"
+    style="
+    color:white;
+    text-decoration:none;
+    font-size:15px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    ">
+    Perfil
+    </a>
+{% else %}
+    <a href="{% url 'notificaciones_usuario' %}"
+    style="
+    color:white;
+    text-decoration:none;
+    font-size:15px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    ">
+    Notificaciones
+    </a>
+    <a href="{% url 'perfil' %}"
+    style="
+    color:white;
+    text-decoration:none;
+    font-size:15px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    ">
+    Perfil
+    </a>
+{% endif %}
 {% endif %}
 
 
@@ -87,7 +120,7 @@ display:flex;
 align-items:center;
 gap:6px;
 ">
-{% if user.is_staff %}Gestionar{% else %}Notificaciones{% endif %}
+Notificaciones
 </a>
 
 

@@ -786,7 +786,6 @@ def notificacion_marcar_no_leida(request, pk):
 @require_POST
 @login_required(login_url='login')
 def notificaciones_marcar_todas_leidas(request):
-    from .models import NotificacionUsuario
     estados = NotificacionUsuario.objects.filter(
         usuario=request.user,
         leida=False
@@ -795,3 +794,35 @@ def notificaciones_marcar_todas_leidas(request):
     estados.update(leida=True, leida_en=timezone.now())
     messages.success(request, f'{count} notificaciones marcadas como leidas.')
     return redirect('notificaciones')
+
+
+@login_required(login_url='login')
+def perfil(request):
+    # Vista de perfil: muestra información del usuario activo
+    user_role = get_user_role(request.user)
+    role_label = get_role_label(user_role)
+    record = Record.objects.filter(user=request.user).first()
+
+    return render(request, 'perfil.html', {
+        'user': request.user,
+        'role': user_role,
+        'role_label': role_label,
+        'record': record,
+        'can_manage_records': user_has_management_role(request.user),
+    })
+
+
+@admin_required
+def perfil_editar(request):
+    # Solo Admin/Organizador pueden editar perfiles de otros usuarios
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        if user_id:
+            record = get_object_or_404(Record, user_id=user_id)
+            form = AddRecordForm(request.POST, instance=record)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Perfil actualizado correctamente.')
+            else:
+                messages.error(request, 'Error al actualizar el perfil.')
+    return redirect('perfil')

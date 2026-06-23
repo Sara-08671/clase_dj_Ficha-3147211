@@ -63,8 +63,10 @@
 
   <div class="d-flex gap-2">
     <a href="{% url 'notificaciones' %}" class="btn-outline-pink">Volver</a>
-    {% if user.is_staff and notificacion.creador == user %}
-      <a href="{% url 'notificacion_organizador_editar' notificacion.id %}" class="btn-pink">Editar</a>
+    {% if user.is_staff or user.is_superuser %}
+      {% if notificacion.creador == user or user.is_superuser %}
+        <a href="{% url 'notificacion_admin_editar' notificacion.id %}" class="btn-pink">Editar</a>
+      {% endif %}
     {% endif %}
   </div>
 </div>
