@@ -1,4 +1,4 @@
-# Django CRM - Sistema de Gestión de Inventario
+# Módulo notificaciones Recicla Comuna 4
 
 ## Descripción
 Sistema CRM desarrollado en Django con módulo de notificaciones, roles de usuario, CRUD de registros y recursos locales de Bootstrap.
