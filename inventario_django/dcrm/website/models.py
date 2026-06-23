@@ -17,8 +17,6 @@ class Record(models.Model):
     state = models.CharField(max_length=50)
     zipcode = models.CharField(max_length=20)
 
-    #metodo para mostrar el nomnre compelto dek cliente y es tipo de encapsulado privado
-    #se utiliza el metodo __str__ para devolver una representacion en forma de cadena del objeto
     def __str__(self) -> str:
         return (f"{self.first_name} {self.last_name}")
 
@@ -67,6 +65,7 @@ class Venta(models.Model):
 
 
 class NotificacionManager(models.Manager):
+    # Manager para obtener notificaciones globales o dirigidas al usuario.
     def para_usuario(self, user):
         return self.get_queryset().filter(
             Q(receptor__isnull=True) | Q(receptor=user)
@@ -74,6 +73,8 @@ class NotificacionManager(models.Manager):
 
 
 class Notificacion(models.Model):
+    # Modelo Notificacion: representa una notificacion enviada por admin/organizador.
+    # Los estados de lectura son independientes por usuario via NotificacionUsuario.
     TIPO_CHOICES = [
         ('info', 'Informativa'),
         ('aviso', 'Aviso'),
@@ -88,6 +89,7 @@ class Notificacion(models.Model):
     )
     titulo = models.CharField(max_length=80)
     mensaje = models.TextField()
+    # receptor=null -> notificacion global para todos
     receptor = models.ForeignKey(
         User,
         null=True,
@@ -103,8 +105,6 @@ class Notificacion(models.Model):
         related_name='notificaciones_creadas',
         editable=False
     )
-    leida = models.BooleanField(default=False)
-    leida_en = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -123,9 +123,36 @@ class Notificacion(models.Model):
     def pertenece_a(self, user):
         return self.receptor is None or self.receptor_id == user.id
 
-    def marcar_leida(self):
-        if not self.leida:
-            self.leida = True
-            self.leida_en = timezone.now()
-            self.save(update_fields=['leida', 'leida_en', 'updated_at'])
+    def contar_no_leidas(self):
+        # Para notificaciones globales: cuenta cuántos usuarios no han leído.
+        if self.es_global():
+            return self.estados.filter(leida=False).count()
+        return 0
 
+
+class NotificacionUsuario(models.Model):
+    # Relacion tabla intermedia: almacena estado de lectura por usuario.
+    # Permite que cada usuario tenga su propio estado (leida/no leida).
+    notificacion = models.ForeignKey(Notificacion, on_delete=models.CASCADE, related_name='estados')
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='estados_notificacion')
+    leida = models.BooleanField(default=False)
+    leida_en = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        # Cada usuario solo puede tener un estado por notificacion.
+        unique_together = ('notificacion', 'usuario')
+        ordering = ['-notificacion__created_at']
+
+    def __str__(self):
+        estado = "leída" if self.leida else "no leída"
+        return f"{self.notificacion.titulo} - {self.usuario.username} ({estado})"
+
+    def marcar_leida(self):
+        self.leida = True
+        self.leida_en = timezone.now()
+        self.save(update_fields=['leida', 'leida_en'])
+
+    def marcar_no_leida(self):
+        self.leida = False
+        self.leida_en = None
+        self.save(update_fields=['leida', 'leida_en'])

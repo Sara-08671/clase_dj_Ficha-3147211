@@ -19,6 +19,7 @@
   .btn-estado { padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; transition: all 0.2s; border: none; cursor: pointer; }
   .btn-marcar { background: var(--primary); color: white; }
   .btn-marcar:hover { background: var(--secondary); }
+  .btn-desmarcar { background: #95a5a6; color: white; }
 </style>
 <div class="notificaciones-wrapper">
   <h2>📬 Notificaciones de {{ user.username }}</h2>
@@ -31,20 +32,23 @@
   <div class="notificaciones-container">
     {% if notificaciones %}
       {% for n in notificaciones %}
-        <div class="notificacion {% if not n.leida %}no-leida{% endif %}">
+        <div class="notificacion {% if not n.leida_usuario %}no-leida{% endif %}">
           <strong>{{ n.get_tipo_display }}
-            {% if not n.leida %}<span class="badge-no-leida">NUEVO</span>{% endif %}
+            {% if not n.leida_usuario %}<span class="badge-no-leida">NUEVO</span>{% endif %}
           </strong>
           <p>{{ n.mensaje }}</p>
           <small style="color: #7d8a88;">{{ n.created_at|date:"d/m/Y H:i" }}</small>
           <div class="acciones-notificacion">
-            {% if not n.leida %}
+            {% if n.leida_usuario %}
+              <form method="POST" action="{% url 'notificacion_marcar_no_leida' n.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-estado btn-desmarcar">Marcar no leída</button>
+              </form>
+            {% else %}
               <form method="POST" action="{% url 'notificacion_marcar_leida' n.id %}">
                 {% csrf_token %}
                 <button type="submit" class="btn-estado btn-marcar">Marcar leída</button>
               </form>
-            {% else %}
-              <span style="color: var(--success); font-weight: 600;">✓ Leída</span>
             {% endif %}
           </div>
         </div>

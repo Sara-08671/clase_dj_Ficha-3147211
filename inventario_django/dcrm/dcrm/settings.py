@@ -138,7 +138,7 @@ def patched_as_sql(self):
 SQLInsertCompiler.as_sql = patched_as_sql
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
+DEBUG = True
 
 ALLOWED_HOSTS = [
     '*',
@@ -161,7 +161,7 @@ ALLOWED_HOSTS = [
 # CSRF_COOKIE_SAMESITE = 'lax'
 # CSRF_COOKIE_HITPONLY = True
 
-SESSION_COOKIE_AGE = 100 
+SESSION_COOKIE_AGE = 3600 
 
 SESSION_SAVE_EVERY_REQUEST = True  # Reinicia el contador de tiempo de sesión en cada solicitud
 SESSION_EXPIRE_BROWSER_CLOSE = True  # Expira la sesión al cerrar el navegador

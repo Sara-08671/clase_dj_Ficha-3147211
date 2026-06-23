@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  :root { --primary: #FF80A2; --secondary: #d94d73; --success: #28a745; --danger: #e74c3c; --dark: #2C3E50; --muted: #7F8C8D; --radius: 12px; }
+  body { background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%); min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
+  .page-container { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+  .panel { background: #fff; border-radius: 18px; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); margin-bottom: 20px; }
+  .panel-title { color: var(--primary); font-weight: 700; margin-bottom: 20px; }
+  .notification-card { border: 1px solid #ffd6e2; border-left: 5px solid var(--primary); border-radius: var(--radius); padding: 18px; background: #fff; margin-bottom: 15px; }
+  .badge-soft { background: #fff0f5; color: var(--secondary); border: 1px solid #ffd6e2; padding: 6px 12px; border-radius: 999px; font-weight: 700; }
+  .btn-pink { background: var(--primary); color: white; padding: 8px 16px; border-radius: var(--radius); text-decoration: none; border: none; font-weight: 600; cursor: pointer; }
+  .btn-pink:hover { background: var(--secondary); color: white; }
+  .btn-outline-pink { background: transparent; color: var(--primary); padding: 8px 16px; border-radius: var(--radius); text-decoration: none; border: 1px solid var(--primary); font-weight: 600; cursor: pointer; }
+  .btn-outline-pink:hover { background: var(--primary); color: white; }
+  .user-list { margin-top: 20px; max-height: 300px; overflow-y: auto; }
+  .user-item { padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+  .user-item.leido { background: #e8f5e9; }
+  .user-item.no-leido { background: #ffebee; }
+</style>
+
+<div class="page-container">
+  <div class="panel">
+    <h1 class="panel-title h3 mb-0">{{ notificacion.titulo }}</h1>
+    <span class="badge-soft">{{ notificacion.get_tipo_display }}</span>
+  </div>
+
+  <div class="notification-card">
+    <p>{{ notificacion.mensaje|linebreaksbr }}</p>
+    <div class="row mt-3 text-muted small">
+      <div class="col-md-4">
+        <strong>Destino:</strong>
+        {% if notificacion.es_global %}Todos los usuarios{% else %}{{ notificacion.receptor.username }}{% endif %}
+      </div>
+      <div class="col-md-4">
+        <strong>Creador:</strong>
+        {% if notificacion.creador %}{{ notificacion.creador.username }}{% else %}Sistema{% endif %}
+      </div>
+      <div class="col-md-4">
+        <strong>Creada:</strong>
+        {{ notificacion.created_at|date:"d/m/Y H:i" }}
+      </div>
+    </div>
+  </div>
+
+  {% if notificacion.es_global and user.is_staff %}
+    <div class="panel">
+      <h3 class="h5">Estadisticas de Lectura</h3>
+      <p><strong>Total notificados:</strong> {{ notificacion.estados.count }}</p>
+      <p><strong>Leidas:</strong> {{ notificacion.estados.filter(leida=True).count }}</p>
+      <p><strong>Pendientes:</strong> {{ notificacion.no_leidas }}</p>
+      <hr>
+      <h4 class="h6">Usuarios</h4>
+      <div class="user-list">
+        {% for estado in notificacion.estados.all %}
+          <div class="user-item {% if estado.leida %}leido{% else %}no-leido{% endif %}">
+            <span>{{ estado.usuario.username }}</span>
+            <span>{% if estado.leida %}Leida{% else %}Pendiente{% endif %}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="d-flex gap-2">
+    <a href="{% url 'notificaciones' %}" class="btn-outline-pink">Volver</a>
+    {% if user.is_staff and notificacion.creador == user %}
+      <a href="{% url 'notificacion_organizador_editar' notificacion.id %}" class="btn-pink">Editar</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

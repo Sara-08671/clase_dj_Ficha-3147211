@@ -126,7 +126,18 @@ def home(request):
             records = paginator.get_page(page_number)
 
         # Mostrar notificaciones en el dashboard según rol
-        notificaciones = Notificacion.objects.para_usuario(request.user).order_by('-created_at')[:5]
+        notificaciones = []
+        try:
+            from .models import NotificacionUsuario
+            for n in Notificacion.objects.para_usuario(request.user).order_by('-created_at')[:5]:
+                estado = NotificacionUsuario.objects.filter(
+                    notificacion=n,
+                    usuario=request.user
+                ).first()
+                n.leida_usuario = estado.leida if estado else False
+                notificaciones.append(n)
+        except Exception:
+            pass
 
         return render(
             request,
@@ -349,8 +360,8 @@ def notificaciones(request):
     if user_has_admin_role(request.user):
         return notificaciones_admin(request)
     if user_has_organizer_role(request.user):
-        return notificaciones_organizador(request)
-    return notificaciones_usuario(request)
+        return redirect('notificaciones_organizador')
+    return redirect('notificaciones_usuario')
 
 
 @admin_required
@@ -359,26 +370,47 @@ def notificaciones_admin(request):
     busqueda = request.GET.get('buscar', '').strip()
     estado = request.GET.get('estado', '').strip()
 
-    queryset = Notificacion.objects.select_related('receptor').all()
+    queryset = Notificacion.objects.select_related('receptor').prefetch_related('estados').all()
 
     if busqueda:
         queryset = queryset.filter(titulo__icontains=busqueda)
 
-    if estado == 'leidas':
-        queryset = queryset.filter(leida=True)
-    elif estado == 'no_leidas':
-        queryset = queryset.filter(leida=False)
-
-    # Procesa formulario POST para crear notificacion
     if request.method == 'POST':
         form = NotificacionForm(request.POST, created_by=request.user)
         if form.is_valid():
-            form.save()
+            notificacion = form.save()
+            # Si es global, crear estado para todos los usuarios activos
+            if notificacion.es_global():
+                from .models import NotificacionUsuario
+                for u in User.objects.filter(is_active=True):
+                    NotificacionUsuario.objects.get_or_create(
+                        notificacion=notificacion,
+                        usuario=u
+                    )
+                    NotificacionUsuario.objects.filter(
+                        notificacion=notificacion,
+                        usuario=u
+                    ).update(leida=False, leida_en=None)
+            # Si es para usuario, crear estado individual
+            elif notificacion.receptor:
+                from .models import NotificacionUsuario
+                NotificacionUsuario.objects.get_or_create(
+                    notificacion=notificacion,
+                    usuario=notificacion.receptor
+                )
+                NotificacionUsuario.objects.filter(
+                    notificacion=notificacion,
+                    usuario=notificacion.receptor
+                ).update(leida=False, leida_en=None)
             messages.success(request, 'Notificacion creada correctamente.')
             return redirect('notificaciones')
         messages.error(request, 'Revise los datos de la notificacion.')
     else:
         form = NotificacionForm(created_by=request.user)
+
+    # Anotar conteo de no leidas
+    for n in queryset:
+        n.no_leidas = n.contar_no_leidas()
 
     return render(request, 'notificaciones_admin.html', {
         'notificaciones': queryset,
@@ -393,35 +425,90 @@ def notificaciones_admin(request):
 
 @login_required(login_url='login')
 def notificaciones_organizador(request):
-    # Vista de notificaciones para Organizador con filtros y marcar leída.
+    # Vista de notificaciones para Organizador: gestiona sus propias notificaciones.
+    # Puede ver, crear, editar, eliminar y ver estados de lectura.
     filtro = request.GET.get('filtro', 'todas')
-    queryset = Notificacion.objects.para_usuario(request.user)
+    busqueda = request.GET.get('buscar', '').strip()
+    from .models import NotificacionUsuario
 
-    if filtro == 'no_leidas':
-        queryset = queryset.filter(leida=False)
-    elif filtro == 'leidas':
-        queryset = queryset.filter(leida=True)
+    if request.method == 'POST':
+        form = NotificacionForm(request.POST, created_by=request.user)
+        if form.is_valid():
+            notificacion = form.save()
+            # Si es global, crear estado para todos los usuarios activos
+            if notificacion.es_global():
+                for u in User.objects.filter(is_active=True):
+                    NotificacionUsuario.objects.get_or_create(
+                        notificacion=notificacion,
+                        usuario=u
+                    )
+                    NotificacionUsuario.objects.filter(
+                        notificacion=notificacion,
+                        usuario=u
+                    ).update(leida=False, leida_en=None)
+            # Si es para usuario, crear estado individual
+            elif notificacion.receptor:
+                NotificacionUsuario.objects.get_or_create(
+                    notificacion=notificacion,
+                    usuario=notificacion.receptor
+                )
+                NotificacionUsuario.objects.filter(
+                    notificacion=notificacion,
+                    usuario=notificacion.receptor
+                ).update(leida=False, leida_en=None)
+            messages.success(request, 'Notificacion creada correctamente.')
+            return redirect('notificaciones_organizador')
+        messages.error(request, 'Revise los datos de la notificacion.')
+    else:
+        form = NotificacionForm(created_by=request.user)
+
+    # Solo notificaciones creadas por el organizador
+    queryset = Notificacion.objects.filter(creador=request.user).select_related('receptor').prefetch_related('estados').order_by('-created_at')
+
+    if busqueda:
+        queryset = queryset.filter(titulo__icontains=busqueda)
+
+    # Convertir a lista para poder anotar
+    notificaciones = []
+    for n in queryset:
+        n.no_leidas = n.contar_no_leidas()
+        notificaciones.append(n)
 
     return render(request, 'notificaciones_organizador.html', {
-        'notificaciones': queryset,
+        'notificaciones': notificaciones,
         'filtro': filtro,
+        'busqueda': busqueda,
+        'users': User.objects.filter(is_active=True),
         'role_label': get_role_label(ROLE_ORGANIZADOR),
+        'can_manage_notifications': True,
+        'tipos': Notificacion.TIPO_CHOICES,
+        'total': len(notificaciones),
+        'form': form,
     })
 
 
 @login_required(login_url='login')
 def notificaciones_usuario(request):
-    # Vista de notificaciones para Residente con filtros por estado.
+    # Vista de notificaciones para Residente con filtros por estado independiente.
     filtro = request.GET.get('filtro', 'todas')
-    queryset = Notificacion.objects.para_usuario(request.user)
+    from .models import NotificacionUsuario
+
+    notificaciones = []
+    for n in Notificacion.objects.para_usuario(request.user).order_by('-created_at'):
+        estado = NotificacionUsuario.objects.filter(
+            notificacion=n,
+            usuario=request.user
+        ).first()
+        n.leida_usuario = estado.leida if estado else False
+        notificaciones.append(n)
 
     if filtro == 'no_leidas':
-        queryset = queryset.filter(leida=False)
+        notificaciones = [n for n in notificaciones if not n.leida_usuario]
     elif filtro == 'leidas':
-        queryset = queryset.filter(leida=True)
+        notificaciones = [n for n in notificaciones if n.leida_usuario]
 
     return render(request, 'notificaciones_residente.html', {
-        'notificaciones': queryset,
+        'notificaciones': notificaciones,
         'filtro': filtro,
         'role_label': get_role_label(ROLE_RESIDENTE),
         'can_manage_notifications': False,
@@ -431,10 +518,26 @@ def notificaciones_usuario(request):
 @admin_required
 def notificacion_crear(request):
     # Muestra formulario para crear notificaciones; solo Admin/Organizador disponen de esta vista.
+    from .models import NotificacionUsuario
     if request.method == 'POST':
         form = NotificacionForm(request.POST, created_by=request.user)
         if form.is_valid():
-            form.save()
+            notificacion = form.save()
+            # Si es global, crear estado para todos los usuarios activos
+            if notificacion.es_global():
+                for u in User.objects.filter(is_active=True):
+                    NotificacionUsuario.objects.get_or_create(
+                        notificacion=notificacion,
+                        usuario=u,
+                        defaults={'leida': False}
+                    )
+            # Si es para usuario, crear estado individual
+            elif notificacion.receptor:
+                NotificacionUsuario.objects.get_or_create(
+                    notificacion=notificacion,
+                    usuario=notificacion.receptor,
+                    defaults={'leida': False}
+                )
             messages.success(request, 'Notificacion creada correctamente.')
             return redirect('notificaciones')
         messages.error(request, 'Revise los datos de la notificacion.')
@@ -448,13 +551,14 @@ def notificacion_crear(request):
         'form': form,
         'tipos': Notificacion.TIPO_CHOICES,
         'total': Notificacion.objects.count(),
-        'no_leidas': Notificacion.objects.filter(leida=False).count(),
+        'no_leidas': NotificacionUsuario.objects.filter(leida=False).count(),
     })
 
 
 @admin_required
 def notificacion_editar(request, pk):
     # Permite editar una notificacion existente; protegido por admin_required.
+    from .models import NotificacionUsuario
     notificacion = get_object_or_404(Notificacion, pk=pk)
 
     if request.method == 'POST':
@@ -475,7 +579,7 @@ def notificacion_editar(request, pk):
         'notificacion': notificacion,
         'tipos': Notificacion.TIPO_CHOICES,
         'total': Notificacion.objects.count(),
-        'no_leidas': Notificacion.objects.filter(leida=False).count(),
+        'no_leidas': NotificacionUsuario.objects.filter(leida=False).count(),
     })
 
 
@@ -489,8 +593,116 @@ def notificacion_eliminar(request, pk):
     return redirect('notificaciones')
 
 
+@admin_required
+def notificacion_admin_editar(request, pk):
+    # Editar notificacion de Admin - todas las notificaciones del sistema.
+    from .models import NotificacionUsuario
+    notificacion = get_object_or_404(Notificacion, pk=pk)
+
+    if request.method == 'POST':
+        form = NotificacionForm(request.POST, instance=notificacion, created_by=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Notificacion actualizada correctamente.')
+            return redirect('notificaciones_admin')
+        messages.error(request, 'Revise los datos de la notificacion.')
+    else:
+        form = NotificacionForm(instance=notificacion, created_by=request.user)
+
+    return render(request, 'notificaciones_admin.html', {
+        'notificaciones': [],
+        'users': User.objects.filter(is_active=True),
+        'form': form,
+        'notificacion': notificacion,
+        'tipos': Notificacion.TIPO_CHOICES,
+        'can_manage_notifications': True,
+        'role_label': get_role_label(ROLE_ADMIN),
+    })
+
+
+@login_required(login_url='login')
+def notificacion_organizador_crear(request):
+    # Crear notificacion para Organizador - gestiona sus propias notificaciones.
+    from .models import NotificacionUsuario
+    if request.method == 'POST':
+        form = NotificacionForm(request.POST, created_by=request.user)
+        if form.is_valid():
+            notificacion = form.save()
+            # Si es global, crear estado para todos los usuarios activos
+            if notificacion.es_global():
+                for u in User.objects.filter(is_active=True):
+                    NotificacionUsuario.objects.get_or_create(
+                        notificacion=notificacion,
+                        usuario=u
+                    )
+                    NotificacionUsuario.objects.filter(
+                        notificacion=notificacion,
+                        usuario=u
+                    ).update(leida=False, leida_en=None)
+            elif notificacion.receptor:
+                NotificacionUsuario.objects.get_or_create(
+                    notificacion=notificacion,
+                    usuario=notificacion.receptor
+                )
+                NotificacionUsuario.objects.filter(
+                    notificacion=notificacion,
+                    usuario=notificacion.receptor
+                ).update(leida=False, leida_en=None)
+            messages.success(request, 'Notificacion creada correctamente.')
+            return redirect('notificaciones_organizador')
+        messages.error(request, 'Revise los datos de la notificacion.')
+    else:
+        form = NotificacionForm(created_by=request.user)
+
+    return render(request, 'notificaciones_organizador.html', {
+        'users': User.objects.filter(is_active=True),
+        'form': form,
+        'tipos': Notificacion.TIPO_CHOICES,
+        'can_manage_notifications': True,
+        'role_label': get_role_label(ROLE_ORGANIZADOR),
+    })
+
+
+@login_required(login_url='login')
+def notificacion_organizador_editar(request, pk):
+    # Editar notificacion de Organizador - solo sus propias notificaciones.
+    from .models import NotificacionUsuario
+    notificacion = get_object_or_404(Notificacion, pk=pk, creador=request.user)
+
+    if request.method == 'POST':
+        form = NotificacionForm(request.POST, instance=notificacion, created_by=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Notificacion actualizada correctamente.')
+            return redirect('notificaciones_organizador')
+        messages.error(request, 'Revise los datos de la notificacion.')
+    else:
+        form = NotificacionForm(instance=notificacion, created_by=request.user)
+
+    return render(request, 'notificaciones_organizador.html', {
+        'notificaciones': [],
+        'users': User.objects.filter(is_active=True),
+        'form': form,
+        'notificacion': notificacion,
+        'tipos': Notificacion.TIPO_CHOICES,
+        'can_manage_notifications': True,
+        'role_label': get_role_label(ROLE_ORGANIZADOR),
+    })
+
+
+@require_POST
+@login_required(login_url='login')
+def notificacion_organizador_eliminar(request, pk):
+    # Eliminar notificacion de Organizador - solo sus propias notificaciones.
+    notificacion = get_object_or_404(Notificacion, pk=pk, creador=request.user)
+    notificacion.delete()
+    messages.success(request, 'Notificacion eliminada correctamente.')
+    return redirect('notificaciones_organizador')
+
+
 @login_required(login_url='login')
 def notificacion_detalle(request, pk):
+    from .models import NotificacionUsuario
     can_manage_notifications = user_has_management_role(request.user)
 
     if can_manage_notifications:
@@ -504,34 +716,82 @@ def notificacion_detalle(request, pk):
     queryset = Notificacion.objects.para_usuario(request.user)
     role = get_user_role(request.user)
 
-    return render(request, 'notificaciones.html', {
+    # Obtener estado de lectura del usuario actual
+    estado_usuario = NotificacionUsuario.objects.filter(
+        notificacion=notificacion,
+        usuario=request.user
+    ).first()
+
+    notificacion.leida_usuario = estado_usuario.leida if estado_usuario else False
+    notificacion.leida_en = estado_usuario.leida_en if estado_usuario else None
+    notificacion.no_leidas = notificacion.contar_no_leidas()
+
+    return render(request, 'notificacion_detalle.html', {
         'role': role,
         'role_label': get_role_label(role),
         'can_manage_notifications': can_manage_notifications,
         'notificacion': notificacion,
         'total': Notificacion.objects.count() if can_manage_notifications else queryset.count(),
-        'no_leidas': Notificacion.objects.filter(leida=False).count() if can_manage_notifications else queryset.filter(leida=False).count(),
+        'no_leidas': NotificacionUsuario.objects.filter(usuario=request.user, leida=False).count(),
     })
 
 
 @require_POST
 @login_required(login_url='login')
 def notificacion_marcar_leida(request, pk):
+    from .models import NotificacionUsuario
+    # Cambia estado de notificacion a leida para users autenticados.
     notificacion = get_object_or_404(Notificacion, pk=pk)
     if not notificacion.pertenece_a(request.user):
         messages.error(request, 'No tiene permiso para modificar esta notificacion.')
         return redirect('notificaciones')
 
-    notificacion.marcar_leida()
+    estado, _ = NotificacionUsuario.objects.get_or_create(
+        notificacion=notificacion,
+        usuario=request.user,
+        defaults={'leida': True, 'leida_en': timezone.now()}
+    )
+    if estado.leida:
+        pass  # Ya está leída
+    else:
+        estado.leida = True
+        estado.leida_en = timezone.now()
+        estado.save()
     messages.success(request, 'Notificacion marcada como leida.')
     return redirect('notificaciones')
 
 
 @require_POST
 @login_required(login_url='login')
+def notificacion_marcar_no_leida(request, pk):
+    from .models import NotificacionUsuario
+    # Cambia estado de notificacion leida a no leida para users autenticados.
+    notificacion = get_object_or_404(Notificacion, pk=pk)
+    if not notificacion.pertenece_a(request.user):
+        messages.error(request, 'No tiene permiso para modificar esta notificacion.')
+        return redirect('notificaciones')
+
+    try:
+        estado = NotificacionUsuario.objects.get(
+            notificacion=notificacion,
+            usuario=request.user
+        )
+        estado.marcar_no_leida()
+        messages.success(request, 'Notificacion marcada como no leida.')
+    except NotificacionUsuario.DoesNotExist:
+        messages.warning(request, 'Estado de notificacion no encontrado.')
+    return redirect('notificaciones')
+
+
+@require_POST
+@login_required(login_url='login')
 def notificaciones_marcar_todas_leidas(request):
-    queryset = Notificacion.objects.para_usuario(request.user).filter(leida=False)
-    count = queryset.count()
-    queryset.update(leida=True, leida_en=timezone.now())
+    from .models import NotificacionUsuario
+    estados = NotificacionUsuario.objects.filter(
+        usuario=request.user,
+        leida=False
+    ).select_related('notificacion')
+    count = estados.count()
+    estados.update(leida=True, leida_en=timezone.now())
     messages.success(request, f'{count} notificaciones marcadas como leidas.')
     return redirect('notificaciones')

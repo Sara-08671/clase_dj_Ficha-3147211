@@ -40,17 +40,17 @@
         <a href="{% url 'notificaciones' %}" class="btn-pink">📋 Ver bandeja completa</a>
       </div>
 
-      {% if notificaciones %}
-        {% for n in notificaciones %}
-          <div class="notification-card {% if not n.leida %}no-leida{% endif %}">
-            <strong>{{ n.get_tipo_display }}
-              {% if not n.leida %}<span class="badge-no-leida">NUEVO</span>{% endif %}
-            </strong>
-            <p class="mb-1">{{ n.mensaje|truncatechars:120 }}</p>
-            <small style="color: var(--muted);">{{ n.created_at|date:"d/m/Y H:i" }}</small>
-          </div>
-        {% endfor %}
-      {% else %}
+{% if notificaciones %}
+         {% for n in notificaciones %}
+           <div class="notification-card {% if not n.leida_usuario %}no-leida{% endif %}">
+             <strong>{{ n.get_tipo_display }}
+               {% if not n.leida_usuario %}<span class="badge-no-leida">NUEVO</span>{% endif %}
+             </strong>
+             <p class="mb-1">{{ n.mensaje|truncatechars:120 }}</p>
+             <small style="color: var(--muted);">{{ n.created_at|date:"d/m/Y H:i" }}</small>
+           </div>
+         {% endfor %}
+       {% else %}
         <div class="alert-info">No hay notificaciones por ahora.</div>
       {% endif %}
     </div>

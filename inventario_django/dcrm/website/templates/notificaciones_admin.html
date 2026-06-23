@@ -10,6 +10,10 @@
   .header-actions { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
   .btn-pink { background: var(--primary); color: white; padding: 10px 20px; border-radius: var(--radius); text-decoration: none; border: none; font-weight: 600; cursor: pointer; }
   .btn-pink:hover { background: var(--secondary); color: white; }
+  .btn-outline-pink { background: transparent; color: var(--primary); padding: 6px 12px; border-radius: var(--radius); text-decoration: none; border: 1px solid var(--primary); font-weight: 600; cursor: pointer; font-size: 14px; }
+  .btn-outline-pink:hover { background: var(--primary); color: white; }
+  .btn-outline-danger { background: transparent; color: var(--danger); padding: 6px 12px; border-radius: var(--radius); text-decoration: none; border: 1px solid var(--danger); font-weight: 600; cursor: pointer; font-size: 14px; }
+  .btn-outline-danger:hover { background: var(--danger); color: white; }
   .card-form { background: #fff9fc; border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
   .card-form h3 { color: var(--secondary); margin-bottom: 20px; }
   label { font-weight: 600; color: var(--dark); margin-top: 12px; display: block; }
@@ -21,7 +25,7 @@
   .tabla th { background: var(--primary); color: white; }
   .tabla tr:hover { background: #fff5fa; }
   .badge { padding: 4px 10px; border-radius: var(--radius); font-size: 0.85rem; }
-  .bg-danger { background: var(--primary); color: white; }
+  .bg-danger { background: var(--danger); color: white; }
   .bg-secondary { background: #95a5a6; color: white; }
 </style>
 
@@ -44,8 +48,8 @@
 
   <!-- Formulario de envio usando NotificacionForm -->
   <div class="card-form mb-4">
-    <h3>➕ Crear Nueva Notificación</h3>
-    <form method="POST">
+    <h3>Crear Nueva Notificacion</h3>
+    <form method="POST" action="{% url 'notificacion_crear' %}">
       {% csrf_token %}
       <label>Destino</label>
       <select name="receptor" class="form-control">
@@ -93,6 +97,7 @@
             <th>Título</th>
             <th>Estado</th>
             <th>Fecha</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -102,13 +107,25 @@
               <td>{{ n.get_tipo_display }}</td>
               <td>{{ n.titulo }}</td>
               <td>
-                {% if n.leida %}
-                  <span class="badge bg-secondary">Leída</span>
+                {% if n.es_global %}
+                  {% with no_pendientes=n.contar_no_leidas %}
+                    <span class="badge {% if no_pendientes > 0 %}bg-danger{% else %}bg-secondary{% endif %}">
+                      {{ no_pendientes }} pendientes
+                    </span>
+                  {% endwith %}
                 {% else %}
-                  <span class="badge bg-danger">No leída</span>
+                  <span class="badge bg-secondary">Individual</span>
                 {% endif %}
               </td>
               <td>{{ n.created_at|date:"d/m/Y H:i" }}</td>
+              <td>
+                <a href="{% url 'notificacion_detalle' n.id %}" class="btn btn-sm btn-outline-pink">Ver</a>
+                <a href="{% url 'notificacion_admin_editar' n.id %}" class="btn btn-sm btn-outline-pink">Editar</a>
+                <form method="POST" action="{% url 'notificacion_admin_eliminar' n.id %}" class="d-inline" onsubmit="return confirm('Desea eliminar esta notificacion?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </form>
+              </td>
             </tr>
           {% endfor %}
         </tbody>

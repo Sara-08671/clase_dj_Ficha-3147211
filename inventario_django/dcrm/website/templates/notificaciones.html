@@ -204,11 +204,11 @@
         <div class="row g-3">
           {% for notificacion in page.object_list %}
             <div class="col-md-6 col-lg-4">
-              <div class="notification-card {% if notificacion.leida %}read{% endif %}">
+              <div class="notification-card {% if notificacion.leida_usuario %}read{% endif %}">
                 <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
                   <span class="badge-soft">{{ notificacion.get_tipo_display }}</span>
-                  <span class="badge {% if notificacion.leida %}bg-secondary{% else %}bg-danger{% endif %}">
-                    {% if notificacion.leida %}Leida{% else %}No leida{% endif %}
+                  <span class="badge {% if notificacion.leida_usuario %}bg-secondary{% else %}bg-danger{% endif %}">
+                    {% if notificacion.leida_usuario %}Leida{% else %}No leida{% endif %}
                   </span>
                 </div>
                 <h3 class="h5 fw-bold mb-2">{{ notificacion.titulo }}</h3>
@@ -218,7 +218,7 @@
                 <p class="mb-3">{{ notificacion.mensaje|truncatechars:120 }}</p>
                 <div class="d-flex flex-wrap gap-2">
                   <a href="{% url 'notificacion_detalle' notificacion.id %}" class="btn btn-sm btn-outline-pink">Ver</a>
-                  {% if not can_manage_notifications and not notificacion.leida %}
+                  {% if not can_manage_notifications and not notificacion.leida_usuario %}
                     <form method="POST" action="{% url 'notificacion_marcar_leida' notificacion.id %}" class="d-inline">
                       {% csrf_token %}
                       <button type="submit" class="btn btn-sm btn-pink">Marcar leida</button>
@@ -301,8 +301,8 @@
         <div class="notification-card mb-3">
           <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
             <span class="badge-soft">{{ notificacion.get_tipo_display }}</span>
-            <span class="badge {% if notificacion.leida %}bg-secondary{% else %}bg-danger{% endif %}">
-              {% if notificacion.leida %}Leida{% else %}No leida{% endif %}
+            <span class="badge {% if notificacion.leida_usuario %}bg-secondary{% else %}bg-danger{% endif %}">
+              {% if notificacion.leida_usuario %}Leida{% else %}No leida{% endif %}
             </span>
           </div>
           <h2 class="h4 notificaciones-title mb-3">{{ notificacion.titulo }}</h2>
@@ -324,7 +324,7 @@
               <strong>Creada:</strong>
               {{ notificacion.created_at|date:"d/m/Y H:i" }}
             </div>
-            {% if notificacion.leida_en %}
+            {% if notificacion.leida_usuario %}
               <div class="col-md-4">
                 <strong>Leida:</strong>
                 {{ notificacion.leida_en|date:"d/m/Y H:i" }}
@@ -333,7 +333,7 @@
           </div>
           <div class="d-flex flex-wrap gap-2 mt-4">
             <a href="{% url 'notificaciones' %}" class="btn btn-outline-pink">Volver a la lista</a>
-            {% if not can_manage_notifications and not notificacion.leida %}
+            {% if not can_manage_notifications and not notificacion.leida_usuario %}
               <form method="POST" action="{% url 'notificacion_marcar_leida' notificacion.id %}" class="d-inline">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-pink">Marcar como leida</button>
