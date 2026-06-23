@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  :root { --primary: #FF80A2; --secondary: #d94d73; --success: #28a745; --danger: #e74c3c; --dark: #2C3E50; --muted: #7F8C8D; --radius: 12px; }
+  body { background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%); min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
+  .page-container { max-width: 800px; margin: 0 auto; padding: 28px 20px; }
+  .panel { background: #fff; border-radius: 18px; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); margin-bottom: 20px; }
+  .panel-title { color: var(--primary); font-weight: 700; margin-bottom: 20px; }
+  .badge-soft { background: #fff0f5; color: var(--secondary); border: 1px solid #ffd6e2; padding: 6px 12px; border-radius: 999px; font-weight: 700; }
+  .btn-pink { background: var(--primary); color: white; padding: 10px 20px; border-radius: var(--radius); text-decoration: none; border: none; font-weight: 600; cursor: pointer; }
+  .btn-pink:hover { background: var(--secondary); color: white; }
+  .btn-outline-pink { background: transparent; color: var(--primary); padding: 10px 20px; border-radius: var(--radius); text-decoration: none; border: 1px solid var(--primary); font-weight: 600; cursor: pointer; }
+  .btn-outline-pink:hover { background: var(--primary); color: white; }
+  .info-row { display: flex; padding: 12px 0; border-bottom: 1px solid #eee; }
+  .info-label { font-weight: 600; color: var(--dark); width: 150px; }
+  .info-value { color: var(--muted); flex: 1; }
+</style>
+
+<div class="page-container">
+  <div class="panel">
+    <h1 class="panel-title h3 mb-0">Perfil de Usuario</h1>
+    <span class="badge-soft">{{ role_label }}</span>
+  </div>
+
+  <div class="panel">
+    <h3 class="h5 mb-3">Informacion Personal</h3>
+    <div class="info-row">
+      <span class="info-label">Usuario:</span>
+      <span class="info-value">{{ user.username }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Email:</span>
+      <span class="info-value">{{ user.email }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Nombre:</span>
+      <span class="info-value">{{ user.first_name }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Apellido:</span>
+      <span class="info-value">{{ user.last_name }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Rol:</span>
+      <span class="info-value">{{ role_label }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Fecha registro:</span>
+      <span class="info-value">{{ user.date_joined|date:"d/m/Y H:i" }}</span>
+    </div>
+    {% if record %}
+      <hr>
+      <h3 class="h5 mb-3">Informacion Adicional</h3>
+      <div class="info-row">
+        <span class="info-label">Telefono:</span>
+        <span class="info-value">{{ record.phone }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Direccion:</span>
+        <span class="info-value">{{ record.Address }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Ciudad:</span>
+        <span class="info-value">{{ record.city }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Estado:</span>
+        <span class="info-value">{{ record.state }}</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="d-flex gap-2">
+    <a href="{% url 'home' %}" class="btn-outline-pink">Volver</a>
+    {% if can_manage_records %}
+      <a href="{% url 'add_record' %}" class="btn-pink">Agregar Usuario</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

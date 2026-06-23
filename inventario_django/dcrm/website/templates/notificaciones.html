@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <style>
   body {
@@ -158,199 +157,100 @@
     </div>
   </div>
 
-  <!-- SPA parcial: los botones cambian secciones visibles sin recargar la pagina. -->
-  <div class="notificaciones-card mb-4">
-    <div class="spa-nav d-flex flex-wrap gap-2 mb-3">
-      <button type="button" class="btn btn-outline-pink" data-spa-target="spa-lista">Lista</button>
-      {% if can_manage_notifications %}
-        <a href="{% url 'notificacion_crear' %}" class="btn btn-outline-pink" data-spa-link="spa-crear">Crear</a>
-      {% endif %}
-      {% if not can_manage_notifications and no_leidas > 0 %}
-        <form method="POST" action="{% url 'notificaciones_marcar_todas_leidas' %}" class="d-inline">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-outline-pink">Marcar todas como leidas</button>
-        </form>
-      {% endif %}
-    </div>
-
-    <section id="spa-lista" data-spa-section>
-      {% if can_manage_notifications %}
-        <form method="GET" class="row g-2 mb-4">
-          <div class="col-md-4">
-            <input type="text" name="busqueda" class="form-control" placeholder="Buscar por titulo" value="{{ busqueda|default:'' }}">
-          </div>
-          <div class="col-md-3">
-            <select name="tipo" class="form-control">
-              <option value="">Todos los tipos</option>
-              {% for value, label in tipos %}
-                <option value="{{ value }}" {% if tipo == value %}selected{% endif %}>{{ label }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-md-3">
-            <select name="estado" class="form-control">
-              <option value="">Todos los estados</option>
-              <option value="no_leidas" {% if estado == 'no_leidas' %}selected{% endif %}>No leidas</option>
-              <option value="leidas" {% if estado == 'leidas' %}selected{% endif %}>Leidas</option>
-            </select>
-          </div>
-          <div class="col-md-2 d-grid">
-            <button type="submit" class="btn btn-pink">Filtrar</button>
-          </div>
-        </form>
-      {% endif %}
-
-      {% if page.object_list %}
-        <div class="row g-3">
-          {% for notificacion in page.object_list %}
-            <div class="col-md-6 col-lg-4">
-              <div class="notification-card {% if notificacion.leida_usuario %}read{% endif %}">
-                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                  <span class="badge-soft">{{ notificacion.get_tipo_display }}</span>
-                  <span class="badge {% if notificacion.leida_usuario %}bg-secondary{% else %}bg-danger{% endif %}">
-                    {% if notificacion.leida_usuario %}Leida{% else %}No leida{% endif %}
-                  </span>
-                </div>
-                <h3 class="h5 fw-bold mb-2">{{ notificacion.titulo }}</h3>
-                <p class="text-muted small mb-2">
-                  Destino: {% if notificacion.es_global %}Todos los usuarios{% else %}{{ notificacion.receptor.username }}{% endif %}
-                </p>
-                <p class="mb-3">{{ notificacion.mensaje|truncatechars:120 }}</p>
-                <div class="d-flex flex-wrap gap-2">
-                  <a href="{% url 'notificacion_detalle' notificacion.id %}" class="btn btn-sm btn-outline-pink">Ver</a>
-                  {% if not can_manage_notifications and not notificacion.leida_usuario %}
-                    <form method="POST" action="{% url 'notificacion_marcar_leida' notificacion.id %}" class="d-inline">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-sm btn-pink">Marcar leida</button>
-                    </form>
-                  {% endif %}
-                  {% if can_manage_notifications %}
-                    <a href="{% url 'notificacion_editar' notificacion.id %}" class="btn btn-sm btn-outline-pink">Editar</a>
-                    <form method="POST" action="{% url 'notificacion_eliminar' notificacion.id %}" class="d-inline" onsubmit="return confirm('Desea eliminar esta notificacion?');">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                    </form>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-
-        {% if page.has_other_pages %}
-          <nav aria-label="Paginacion" class="mt-4">
-            <ul class="pagination justify-content-center">
-              {% if page.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}">Anterior</a></li>
-              {% endif %}
-              {% for number in page.paginator.page_range %}
-                {% if number == page.number %}
-                  <li class="page-item active"><span class="page-link">{{ number }}</span></li>
-                {% elif number > page.number|add:'-3' and number < page.number|add:'3' %}
-                  <li class="page-item"><a class="page-link" href="?page={{ number }}">{{ number }}</a></li>
-                {% endif %}
-              {% endfor %}
-              {% if page.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}">Siguiente</a></li>
-              {% endif %}
-            </ul>
-          </nav>
-        {% endif %}
-      {% else %}
-        <div class="alert alert-info mb-0">No hay notificaciones para mostrar.</div>
-      {% endif %}
-    </section>
-
-    {% if form %}
-      <section id="spa-crear" data-spa-section class="d-none">
-        <div class="form-panel">
-          <h2 class="h4 notificaciones-title mb-3">
-            {% if notificacion %}Editar notificacion{% else %}Crear notificacion{% endif %}
-          </h2>
-          <form method="POST">
-            {% csrf_token %}
-            {% if form.errors %}
-              <div class="alert alert-danger">Revise los campos marcados.</div>
-            {% endif %}
-            <div class="row g-3">
-              {% for field in form %}
-                <div class="col-md-6">
-                  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                  {{ field }}
-                  {% for error in field.errors %}
-                    <div class="text-danger small">{{ error }}</div>
-                  {% endfor %}
-                </div>
-              {% endfor %}
-            </div>
-            <div class="d-flex gap-2 mt-4">
-              <button type="submit" class="btn btn-pink">Guardar</button>
-              {% if can_manage_notifications %}
-                <a href="{% url 'notificaciones_admin' %}" class="btn btn-outline-pink">Cancelar</a>
-              {% else %}
-                <a href="{% url 'notificaciones_usuario' %}" class="btn btn-outline-pink">Cancelar</a>
-              {% endif %}
-            </div>
-          </form>
-        </div>
-      </section>
+  <div class="spa-nav d-flex flex-wrap gap-2 mb-3">
+    <button type="button" class="btn btn-outline-pink" data-spa-target="spa-lista">Lista</button>
+    {% if can_manage_notifications %}
+      <a href="{% url 'notificacion_crear' %}" class="btn btn-outline-pink" data-spa-link="spa-crear">Crear</a>
     {% endif %}
-
-    {% if notificacion %}
-      <section id="spa-detalle" data-spa-section class="d-none">
-        <div class="notification-card mb-3">
-          <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
-            <span class="badge-soft">{{ notificacion.get_tipo_display }}</span>
-            <span class="badge {% if notificacion.leida_usuario %}bg-secondary{% else %}bg-danger{% endif %}">
-              {% if notificacion.leida_usuario %}Leida{% else %}No leida{% endif %}
-            </span>
-          </div>
-          <h2 class="h4 notificaciones-title mb-3">{{ notificacion.titulo }}</h2>
-          <p>{{ notificacion.mensaje|linebreaksbr }}</p>
-          <div class="row g-3 mt-3 text-muted small">
-            <div class="col-md-4">
-              <strong>Destino:</strong>
-              {% if notificacion.es_global %}
-                Todos los usuarios
-              {% else %}
-                {{ notificacion.receptor.username }}
-              {% endif %}
-            </div>
-            <div class="col-md-4">
-              <strong>Creador:</strong>
-              {% if notificacion.creador %}{{ notificacion.creador.username }}{% else %}Sistema{% endif %}
-            </div>
-            <div class="col-md-4">
-              <strong>Creada:</strong>
-              {{ notificacion.created_at|date:"d/m/Y H:i" }}
-            </div>
-            {% if notificacion.leida_usuario %}
-              <div class="col-md-4">
-                <strong>Leida:</strong>
-                {{ notificacion.leida_en|date:"d/m/Y H:i" }}
-              </div>
-            {% endif %}
-          </div>
-          <div class="d-flex flex-wrap gap-2 mt-4">
-            <a href="{% url 'notificaciones' %}" class="btn btn-outline-pink">Volver a la lista</a>
-            {% if not can_manage_notifications and not notificacion.leida_usuario %}
-              <form method="POST" action="{% url 'notificacion_marcar_leida' notificacion.id %}" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-pink">Marcar como leida</button>
-              </form>
-            {% endif %}
-            {% if can_manage_notifications %}
-              <a href="{% url 'notificacion_editar' notificacion.id %}" class="btn btn-outline-pink">Editar</a>
-              <form method="POST" action="{% url 'notificacion_eliminar' notificacion.id %}" class="d-inline" onsubmit="return confirm('Desea eliminar esta notificacion?');">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-danger">Eliminar</button>
-              </form>
-            {% endif %}
-          </div>
-        </div>
-      </section>
+    {% if not can_manage_notifications and no_leidas > 0 %}
+      <form method="POST" action="{% url 'notificaciones_marcar_todas_leidas' %}" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-pink">Marcar todas como leidas</button>
+      </form>
     {% endif %}
   </div>
+
+  <section id="spa-lista" data-spa-section>
+    {% if notificaciones %}
+      <div class="row g-3">
+        {% for n in notificaciones %}
+          <div class="col-md-6 col-lg-4">
+            <div class="notification-card {% if not n.leida_usuario %}no-leida{% endif %}">
+              <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                <span class="badge-soft">{{ n.get_tipo_display }}</span>
+                <span class="badge {% if n.leida_usuario %}bg-secondary{% else %}bg-danger{% endif %}">
+                  {% if n.leida_usuario %}Leida{% else %}No leida{% endif %}
+                </span>
+              </div>
+              <h3 class="h5 fw-bold mb-2">{{ n.titulo }}</h3>
+              <p class="text-muted small mb-2">
+                Destino: {% if n.es_global %}Todos los usuarios{% else %}{{ n.receptor.username }}{% endif %}
+              </p>
+              <p class="mb-3">{{ n.mensaje|truncatechars:120 }}</p>
+              <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'notificacion_detalle' n.id %}" class="btn btn-sm btn-outline-pink">Ver</a>
+                {% if not can_manage_notifications and not n.leida_usuario %}
+                  <form method="POST" action="{% url 'notificacion_marcar_leida' n.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-pink">Marcar leida</button>
+                  </form>
+                {% endif %}
+                {% if can_manage_notifications %}
+                  {% if user.is_superuser %}
+                    <a href="{% url 'notificacion_admin_editar' n.id %}" class="btn btn-sm btn-outline-pink">Editar</a>
+                    <form method="POST" action="{% url 'notificacion_admin_eliminar' n.id %}" class="d-inline" onsubmit="return confirm('Desea eliminar esta notificacion?');">
+                  {% else %}
+                    <a href="{% url 'notificacion_organizador_editar' n.id %}" class="btn btn-sm btn-outline-pink">Editar</a>
+                    <form method="POST" action="{% url 'notificacion_organizador_eliminar' n.id %}" class="d-inline" onsubmit="return confirm('Desea eliminar esta notificacion?');">
+                  {% endif %}
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                  </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info mb-0">No hay notificaciones para mostrar.</div>
+    {% endif %}
+  </section>
+
+  {% if form %}
+    <section id="spa-crear" data-spa-section class="d-none">
+      <div class="form-panel">
+        <h2 class="h4 notificaciones-title mb-3">
+          {% if notificacion %}Editar notificacion{% else %}Crear notificacion{% endif %}
+        </h2>
+        <form method="POST">
+          {% csrf_token %}
+          {% if form.errors %}
+            <div class="alert alert-danger">Revise los campos marcados.</div>
+          {% endif %}
+          <div class="row g-3">
+            {% for field in form %}
+              <div class="col-md-6">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-pink">Guardar</button>
+            {% if can_manage_notifications %}
+              <a href="{% url 'notificaciones_admin' %}" class="btn btn-outline-pink">Cancelar</a>
+            {% else %}
+              <a href="{% url 'notificaciones_usuario' %}" class="btn btn-outline-pink">Cancelar</a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </section>
+  {% endif %}
 </div>
 
 <script>
@@ -358,7 +258,7 @@
     document.querySelectorAll('[data-spa-section]').forEach(function(section) {
       section.classList.add('d-none');
     });
-    document.querySelectorAll('[data-spa-target], [data-spa-link]').forEach(function(element) {
+    document.querySelectorAll('[data-spa-target]').forEach(function(element) {
       element.classList.remove('active');
     });
     const target = document.getElementById(sectionId);
@@ -377,14 +277,8 @@
     });
   });
 
-  document.querySelectorAll('[data-spa-link]').forEach(function(link) {
-    link.addEventListener('click', function() {
-      showSpaSection(link.getAttribute('data-spa-link'));
-    });
-  });
-
   document.addEventListener('DOMContentLoaded', function() {
-    showSpaSection('{% if notificacion %}spa-detalle{% elif form %}spa-crear{% else %}spa-lista{% endif %}');
+    showSpaSection('spa-lista');
   });
 </script>
 {% endblock %}

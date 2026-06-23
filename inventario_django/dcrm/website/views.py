@@ -726,6 +726,15 @@ def notificacion_detalle(request, pk):
     notificacion.leida_en = estado_usuario.leida_en if estado_usuario else None
     notificacion.no_leidas = notificacion.contar_no_leidas()
 
+    # Calcular estadísticas de lectura para notificaciones globales
+    total_notificados = 0
+    leidas = 0
+    estados = []
+    if notificacion.es_global() and can_manage_notifications:
+        estados = list(NotificacionUsuario.objects.filter(notificacion=notificacion).select_related('usuario'))
+        total_notificados = len(estados)
+        leidas = sum(1 for e in estados if e.leida)
+
     return render(request, 'notificacion_detalle.html', {
         'role': role,
         'role_label': get_role_label(role),
@@ -733,6 +742,9 @@ def notificacion_detalle(request, pk):
         'notificacion': notificacion,
         'total': Notificacion.objects.count() if can_manage_notifications else queryset.count(),
         'no_leidas': NotificacionUsuario.objects.filter(usuario=request.user, leida=False).count(),
+        'total_notificados': total_notificados,
+        'leidas': leidas,
+        'estados': estados,
     })
 
 

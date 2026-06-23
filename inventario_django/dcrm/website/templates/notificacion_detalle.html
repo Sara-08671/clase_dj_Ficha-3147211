@@ -45,13 +45,13 @@
   {% if notificacion.es_global and user.is_staff %}
     <div class="panel">
       <h3 class="h5">Estadisticas de Lectura</h3>
-      <p><strong>Total notificados:</strong> {{ notificacion.estados.count }}</p>
-      <p><strong>Leidas:</strong> {{ notificacion.estados.filter(leida=True).count }}</p>
+      <p><strong>Total notificados:</strong> {{ total_notificados }}</p>
+      <p><strong>Leidas:</strong> {{ leidas }}</p>
       <p><strong>Pendientes:</strong> {{ notificacion.no_leidas }}</p>
       <hr>
       <h4 class="h6">Usuarios</h4>
       <div class="user-list">
-        {% for estado in notificacion.estados.all %}
+        {% for estado in estados %}
           <div class="user-item {% if estado.leida %}leido{% else %}no-leido{% endif %}">
             <span>{{ estado.usuario.username }}</span>
             <span>{% if estado.leida %}Leida{% else %}Pendiente{% endif %}</span>
